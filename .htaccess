@@ -1,0 +1,5 @@
+# Protege archivos sensibles de la raíz
+<FilesMatch "^(\.env|composer\.(json|lock))$">
+    Require all denied
+</FilesMatch>
+RedirectMatch 403 ^.*/(vendor|database)/.*$

@@ -4,9 +4,14 @@
 -- Modelo en 3FN + bloques modulares en JSON
 -- =====================================================
 
-DROP DATABASE IF EXISTS pixela_cms;
-CREATE DATABASE pixela_cms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS pixela_cms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE pixela_cms;
+
+-- Borra las tablas si ya existen (permite reimportar el script)
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS mensajes_contacto, page_components, menu_items, paginas,
+                     site_config, media_variantes, media, usuarios, roles;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- -----------------------------------------------------
 -- 1. ROLES

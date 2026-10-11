@@ -1,0 +1,8 @@
+# Envía todas las peticiones a index.php (router)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
+
+# Bloquea acceso directo a carpetas internas
+RedirectMatch 403 ^.*/api/(config|core|controllers|services|middleware)/.*$
