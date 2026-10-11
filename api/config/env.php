@@ -6,7 +6,7 @@ function cargarEnv(string $ruta): void
     if (!file_exists($ruta)) {
         http_response_code(500);
         header('Content-Type: application/json');
-        echo json_encode(['ok' => false, 'error' => 'Falta el archivo .env']);
+        echo json_encode(['ok' => false, 'error' => 'Falta el archivo .env. Abre instalar.php en el navegador para configurar el sistema.'], JSON_UNESCAPED_UNICODE);
         exit;
     }
 

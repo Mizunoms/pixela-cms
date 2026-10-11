@@ -35,8 +35,9 @@ class Router
 
     public function ejecutar(string $metodo, string $uri): void
     {
-        $base = rtrim(env('API_BASE', '/api'), '/');
-        $ruta = parse_url($uri, PHP_URL_PATH);
+        // Base detectada sola (ej. /pixela-cms/api o /pixela-cms-main/api)
+        $base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        $ruta = rawurldecode(parse_url($uri, PHP_URL_PATH));
         if (str_starts_with($ruta, $base)) {
             $ruta = substr($ruta, strlen($base));
         }

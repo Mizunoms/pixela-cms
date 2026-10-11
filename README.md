@@ -5,6 +5,18 @@ Sistema web autónomo y administrable para **Pixela**, un estudio digital (dise�
 - **Web pública:** se arma sola leyendo de la base de datos los colores, el logo, el menú y los bloques de contenido.
 - **Panel admin:** permite cambiar todo eso sin tocar código.
 
+## ▶ Cómo probarlo (3 pasos)
+
+Solo se necesita **XAMPP** (con PHP 8 o superior). No hay que instalar nada más.
+
+1. **Descargar:** botón verde **Code → Download ZIP**. Descomprimir y copiar la carpeta dentro de `C:\xampp\htdocs\`.
+2. **Encender XAMPP:** abrir el panel de XAMPP y dar **Start** a **Apache** y **MySQL**.
+3. **Instalar:** abrir en el navegador `http://localhost/NOMBRE-DE-LA-CARPETA/instalar.php` (por ejemplo `http://localhost/pixela-cms-main/instalar.php`) y pulsar **Instalar ahora**.
+
+El instalador crea la base de datos y la configuración automáticamente.
+
+**Usuario de prueba:** `admin@pixela.pe` / `Pixela2026!`
+
 ## Avance
 
 | Semana | Hito | Estado |
@@ -42,6 +54,8 @@ pixela-cms/
 ├── uploads/        imágenes procesadas
 ├── database/       script SQL (pixela_cms.sql)
 ├── docs/           DER y tabla de entidades
+├── vendor/         librería JWT (incluida, no requiere Composer)
+├── instalar.php    instalador web
 ├── .env.example
 └── composer.json
 ```
@@ -52,32 +66,9 @@ pixela-cms/
 
 Diagrama: [`docs/DER_pixela_cms.pdf`](docs/DER_pixela_cms.pdf)
 
-## Instalación (XAMPP)
-
-Requisitos: XAMPP con PHP 8+ y MariaDB, Composer.
-
-1. Clonar dentro de `htdocs`:
-   ```bash
-   cd C:\xampp\htdocs
-   git clone https://github.com/Mizunoms/pixela-cms.git
-   cd pixela-cms
-   ```
-2. Instalar dependencias:
-   ```bash
-   composer install
-   ```
-3. Crear el archivo de entorno y poner un `JWT_SECRET` de 32 caracteres o más:
-   ```bash
-   copy .env.example .env
-   ```
-4. Importar `database/pixela_cms.sql` desde phpMyAdmin (pestaña Importar).
-5. Con Apache y MySQL encendidos, abrir `http://localhost/pixela-cms/api/`. Debe responder `"bd":"conectada"`.
-
-**Usuario de prueba:** `admin@pixela.pe` / `Pixela2026!`
-
 ## Endpoints
 
-Base: `http://localhost/pixela-cms/api`
+Base: `http://localhost/NOMBRE-DE-LA-CARPETA/api`
 
 | Método | Ruta | Acceso | Descripción |
 |---|---|---|---|
