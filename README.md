@@ -1,1 +1,103 @@
-# pixela-cms
+# Pixela CMS
+
+Sistema web autónomo y administrable para **Pixela**, un estudio digital (diseño web, branding, redes y sistemas a medida). Tiene dos partes que consumen una misma API:
+
+- **Web pública:** se arma sola leyendo de la base de datos los colores, el logo, el menú y los bloques de contenido.
+- **Panel admin:** permite cambiar todo eso sin tocar código.
+
+## Avance
+
+| Semana | Hito | Estado |
+|---|---|---|
+| 1 | Cimientos: DER, servidor básico y endpoints de autenticación | ✅ Completado |
+| 2 | Motor: CRUD de bloques, subida de imágenes, configuración de colores | ⏳ En desarrollo |
+| 3 | Panel admin responsive | Pendiente |
+| 4 | Web pública con variables CSS dinámicas y QA responsive | Pendiente |
+
+## Stack
+
+La guía marca las tecnologías como opcionales. Se usa PHP + MySQL, cumpliendo los mismos requisitos:
+
+| Requisito de la guía | Implementación en este proyecto |
+|---|---|
+| PostgreSQL con JSONB | MySQL / MariaDB con columna `JSON` (validada con `JSON_VALID`) |
+| Tablas `site_config` y `page_components` | Incluidas, con el contenido de cada bloque en JSON |
+| API REST con patrón controlador-servicio | PHP 8 con router propio: `controllers/` → `services/` |
+| JWT en cookie httpOnly | `firebase/php-jwt` v7 + cookie `HttpOnly`, `SameSite=Strict` |
+| Middleware de roles | `AuthMiddleware` (roles `admin` y `editor`) |
+| `sharp` para imágenes | Librería GD de PHP (versiones 480 / 768 / 1280 px en webp) |
+
+## Estructura
+
+```
+pixela-cms/
+├── api/            API REST (punto de entrada: index.php)
+│   ├── config/     conexión a BD y lectura del .env
+│   ├── core/       router y respuestas JSON
+│   ├── controllers/
+│   ├── services/   lógica de negocio
+│   └── middleware/ validación de JWT y roles
+├── admin/          panel de control (semana 3)
+├── public/         web pública (semana 4)
+├── uploads/        imágenes procesadas
+├── database/       script SQL (pixela_cms.sql)
+├── docs/           DER y tabla de entidades
+├── .env.example
+└── composer.json
+```
+
+## Base de datos
+
+9 tablas en 3FN. Lo estructural (usuarios, roles, páginas, menú, medios) va normalizado; solo el contenido variable de cada bloque va en JSON, lo que permite agregar tipos de bloque sin cambiar el esquema.
+
+Diagrama: [`docs/DER_pixela_cms.pdf`](docs/DER_pixela_cms.pdf)
+
+## Instalación (XAMPP)
+
+Requisitos: XAMPP con PHP 8+ y MariaDB, Composer.
+
+1. Clonar dentro de `htdocs`:
+   ```bash
+   cd C:\xampp\htdocs
+   git clone https://github.com/Mizunoms/pixela-cms.git
+   cd pixela-cms
+   ```
+2. Instalar dependencias:
+   ```bash
+   composer install
+   ```
+3. Crear el archivo de entorno y poner un `JWT_SECRET` de 32 caracteres o más:
+   ```bash
+   copy .env.example .env
+   ```
+4. Importar `database/pixela_cms.sql` desde phpMyAdmin (pestaña Importar).
+5. Con Apache y MySQL encendidos, abrir `http://localhost/pixela-cms/api/`. Debe responder `"bd":"conectada"`.
+
+**Usuario de prueba:** `admin@pixela.pe` / `Pixela2026!`
+
+## Endpoints
+
+Base: `http://localhost/pixela-cms/api`
+
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| GET | `/` | Público | Estado de la API y la base de datos |
+| POST | `/auth/login` | Público | Inicia sesión; guarda el JWT en cookie httpOnly |
+| POST | `/auth/logout` | Público | Cierra sesión |
+| GET | `/auth/me` | Logueado | Datos del usuario actual |
+| GET | `/admin/ping` | Solo admin | Prueba de protección por rol |
+
+Ejemplo de login:
+
+```json
+POST /auth/login
+{ "email": "admin@pixela.pe", "password": "Pixela2026!" }
+```
+
+## Seguridad
+
+- Contraseñas con `password_hash` (bcrypt).
+- JWT firmado en cookie `HttpOnly` (no accesible desde JavaScript).
+- Consultas con PDO y sentencias preparadas.
+- `.env`, `vendor/`, `config/`, `services/` y demás carpetas internas bloqueadas por `.htaccess`.
+- Credenciales fuera del repositorio (`.env` en `.gitignore`).
