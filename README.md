@@ -10,6 +10,7 @@ Sistema web autónomo y administrable para **Pixela**, un estudio digital (dise�
 Solo se necesita **XAMPP** (con PHP 8 o superior). No hay que instalar nada más.
 
 1. **Descargar:** botón verde **Code → Download ZIP**. Descomprimir y copiar la carpeta dentro de `C:\xampp\htdocs\`.
+   > ⚠ Al descomprimir, Windows a veces crea una carpeta dentro de otra (`pixela-cms-main\pixela-cms-main`). Copia la de **adentro**, la que contiene `instalar.php`.
 2. **Encender XAMPP:** abrir el panel de XAMPP y dar **Start** a **Apache** y **MySQL**.
 3. **Instalar:** abrir en el navegador `http://localhost/NOMBRE-DE-LA-CARPETA/instalar.php` (por ejemplo `http://localhost/pixela-cms-main/instalar.php`) y pulsar **Instalar ahora**.
 
