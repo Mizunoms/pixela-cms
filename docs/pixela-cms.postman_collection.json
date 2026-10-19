@@ -1,0 +1,1551 @@
+{
+  "info": {
+    "name": "Pixela CMS API",
+    "description": "Colección para probar la API de Pixela CMS.\n\n1. Instala el proyecto con instalar.php.\n2. Si tu carpeta no se llama pixela-cms, cambia la variable base_url (pestaña Variables de la colección).\n3. Ejecuta primero **Auth → Login admin**: Postman guarda la cookie httpOnly con el JWT y la envía sola en las demás peticiones.\n4. Las peticiones de crear guardan el id creado en variables (pagina_id, bloque_id, menu_id, media_id) para usarlo en las siguientes.\n\nPara **Imágenes → Subir imagen**, elige un archivo JPG/PNG/WEBP en el campo `imagen` (pestaña Body).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/pixela-cms/api"
+    },
+    {
+      "key": "pagina_id",
+      "value": "1"
+    },
+    {
+      "key": "bloque_id",
+      "value": "1"
+    },
+    {
+      "key": "menu_id",
+      "value": "1"
+    },
+    {
+      "key": "submenu_id",
+      "value": "1"
+    },
+    {
+      "key": "media_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Estado",
+      "item": [
+        {
+          "name": "Estado de la API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": []
+            },
+            "description": "Comprueba que la API y la base de datos respondan."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Login admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión. El JWT queda en la cookie httpOnly `pixela_token`.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@pixela.pe\",\n  \"password\": \"Pixela2026!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login con clave incorrecta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Debe responder 401.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@pixela.pe\",\n  \"password\": \"incorrecta\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Usuario actual",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Datos del usuario logueado (requiere login)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ruta solo admin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/ping",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "ping"
+              ]
+            },
+            "description": "Prueba de protección por rol."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Público (lo que usa la web)",
+      "item": [
+        {
+          "name": "Configuración del sitio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "config"
+              ]
+            },
+            "description": "Colores, logo, contacto y `css_variables` listas para el front."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Menú",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "menu"
+              ]
+            },
+            "description": "Árbol del menú visible con submenús."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Página de inicio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/inicio",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "inicio"
+              ]
+            },
+            "description": "Página de inicio con sus bloques visibles en orden."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Página por slug",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/paginas/servicios",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "paginas",
+                "servicios"
+              ]
+            },
+            "description": "Cualquier página publicada por su slug."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Página inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/paginas/no-existe",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "paginas",
+                "no-existe"
+              ]
+            },
+            "description": "Debe responder 404."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 404\", () => pm.response.to.have.status(404));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Configuración global (solo admin)",
+      "item": [
+        {
+          "name": "Cambiar colores y datos",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config"
+              ]
+            },
+            "description": "Actualización parcial: solo cambia los campos enviados. Colores en HEX.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_sitio\": \"Pixela Studio\",\n  \"colores\": {\n    \"primario\": \"#8A2BE2\",\n    \"secundario\": \"#2563EB\",\n    \"acento\": \"#00F0FF\"\n  },\n  \"whatsapp\": \"51987654321\",\n  \"redes_sociales\": {\n    \"instagram\": \"https://instagram.com/pixela\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Color inválido",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config"
+              ]
+            },
+            "description": "Debe responder 422.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"colores\": {\n    \"primario\": \"rojo\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Páginas",
+      "item": [
+        {
+          "name": "Listar páginas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas"
+              ]
+            },
+            "description": "Todas las páginas con su cantidad de bloques."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear página",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas"
+              ]
+            },
+            "description": "Si no envías slug, se genera desde el título.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Portafolio\",\n  \"meta_descripcion\": \"Proyectos realizados por Pixela\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"pagina_id\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ver página (con bloques ocultos)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas/{{pagina_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas",
+                "{{pagina_id}}"
+              ]
+            },
+            "description": "Incluye bloques ocultos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar página",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas/{{pagina_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas",
+                "{{pagina_id}}"
+              ]
+            },
+            "description": "Actualización parcial.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Nuestro portafolio\",\n  \"publicada\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Slug repetido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas"
+              ]
+            },
+            "description": "Debe responder 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Otra\",\n  \"slug\": \"servicios\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 409\", () => pm.response.to.have.status(409));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Bloques (contenido JSON)",
+      "item": [
+        {
+          "name": "Tipos de bloque",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/bloques/tipos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "bloques",
+                "tipos"
+              ]
+            },
+            "description": "Tipos que el front sabe dibujar."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear bloque hero",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas/{{pagina_id}}/bloques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas",
+                "{{pagina_id}}",
+                "bloques"
+              ]
+            },
+            "description": "El contenido es libre según el tipo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"hero\",\n  \"contenido\": {\n    \"titulo\": \"Proyectos que hablan por nosotros\",\n    \"subtitulo\": \"Webs, branding y sistemas\",\n    \"boton_texto\": \"Cotizar\",\n    \"boton_url\": \"/contacto\",\n    \"imagen_id\": null\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"bloque_id\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear bloque galería",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas/{{pagina_id}}/bloques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas",
+                "{{pagina_id}}",
+                "bloques"
+              ]
+            },
+            "description": "Bloque oculto (visible: false).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"galeria\",\n  \"contenido\": {\n    \"titulo\": \"Trabajos recientes\",\n    \"imagenes\": []\n  },\n  \"visible\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar bloques de la página",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas/{{pagina_id}}/bloques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas",
+                "{{pagina_id}}",
+                "bloques"
+              ]
+            },
+            "description": "En orden."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar bloque",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/bloques/{{bloque_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "bloques",
+                "{{bloque_id}}"
+              ]
+            },
+            "description": "Cambia contenido y/o visibilidad.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contenido\": {\n    \"titulo\": \"Proyectos 2026\",\n    \"subtitulo\": \"Lo último de Pixela\"\n  },\n  \"visible\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reordenar bloques",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas/1/bloques/orden",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas",
+                "1",
+                "bloques",
+                "orden"
+              ]
+            },
+            "description": "Envía TODOS los ids de bloques de la página en el nuevo orden. En la instalación nueva, la página 1 tiene los bloques 1 al 8.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ids\": [\n    1,\n    3,\n    2,\n    4,\n    5,\n    6,\n    7,\n    8\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tipo inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas/{{pagina_id}}/bloques",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas",
+                "{{pagina_id}}",
+                "bloques"
+              ]
+            },
+            "description": "Debe responder 422.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipo\": \"script\",\n  \"contenido\": {}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar bloque",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/bloques/{{bloque_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "bloques",
+                "{{bloque_id}}"
+              ]
+            },
+            "description": "Borra el bloque y reacomoda el orden."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. Menú",
+      "item": [
+        {
+          "name": "Ver menú completo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu"
+              ]
+            },
+            "description": "Incluye ocultos y marca `sin_destino` si su página fue borrada."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear ítem (a una página)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu"
+              ]
+            },
+            "description": "Destino: pagina_id o url_externa (solo uno).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"etiqueta\": \"Portafolio\",\n  \"pagina_id\": \"{{pagina_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"menu_id\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear submenú",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu"
+              ]
+            },
+            "description": "parent_id = ítem padre. Máximo 2 niveles.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"etiqueta\": \"Diseño web\",\n  \"url_externa\": \"#servicios\",\n  \"parent_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"submenu_id\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar ítem",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu/{{menu_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu",
+                "{{menu_id}}"
+              ]
+            },
+            "description": "Cambia texto, destino, padre o visibilidad.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"etiqueta\": \"Proyectos\",\n  \"visible\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reordenar menú",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu/orden",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu",
+                "orden"
+              ]
+            },
+            "description": "Envía TODOS los ítems con su padre y orden. Aquí: Portafolio pasa al 2.º lugar y Diseño web queda como submenú de Servicios.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"id\": 1,\n      \"parent_id\": null,\n      \"orden\": 1\n    },\n    {\n      \"id\": \"{{menu_id}}\",\n      \"parent_id\": null,\n      \"orden\": 2\n    },\n    {\n      \"id\": 2,\n      \"parent_id\": null,\n      \"orden\": 3\n    },\n    {\n      \"id\": \"{{submenu_id}}\",\n      \"parent_id\": 2,\n      \"orden\": 1\n    },\n    {\n      \"id\": 3,\n      \"parent_id\": null,\n      \"orden\": 4\n    },\n    {\n      \"id\": 4,\n      \"parent_id\": null,\n      \"orden\": 5\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submenú de 3 niveles",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu"
+              ]
+            },
+            "description": "Debe responder 422: solo se permiten 2 niveles.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"etiqueta\": \"Logos\",\n  \"url_externa\": \"#logos\",\n  \"parent_id\": \"{{submenu_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar ítem",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/menu/{{menu_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "menu",
+                "{{menu_id}}"
+              ]
+            },
+            "description": "Si tiene submenús, también se borran."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. Imágenes",
+      "item": [
+        {
+          "name": "Subir imagen",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/media",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "media"
+              ]
+            },
+            "description": "multipart/form-data. Elige un archivo en `imagen`. Genera versiones de 480, 768 y 1280 px en WEBP.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "imagen",
+                  "type": "file",
+                  "src": []
+                },
+                {
+                  "key": "alt",
+                  "value": "Portada de Pixela",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"media_id\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar imágenes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/media",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "media"
+              ]
+            },
+            "description": "Con sus variantes, url y srcset."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Usar como logo del sitio",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/config",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "config"
+              ]
+            },
+            "description": "Asigna la imagen subida como logo (solo admin).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"logo_id\": \"{{media_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Editar texto alternativo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/media/{{media_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "media",
+                "{{media_id}}"
+              ]
+            },
+            "description": "Texto alt para accesibilidad.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alt\": \"Logo de Pixela\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar imagen",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/media/{{media_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "media",
+                "{{media_id}}"
+              ]
+            },
+            "description": "Borra el registro y los archivos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8. Cerrar sesión",
+      "item": [
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Borra la cookie."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Sin sesión no entra al admin",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/paginas",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "paginas"
+              ]
+            },
+            "description": "Debe responder 401."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 401\", () => pm.response.to.have.status(401));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -16,15 +16,27 @@ class Response
         self::json(['ok' => true, 'mensaje' => $mensaje, 'data' => $data], $status);
     }
 
+    public static function creado($data = null, string $mensaje = 'Creado'): void
+    {
+        self::ok($data, $mensaje, 201);
+    }
+
     public static function error(string $mensaje, int $status = 400): void
     {
         self::json(['ok' => false, 'error' => $mensaje], $status);
     }
 
-    // Lee el body JSON de la petición
+    // Lee el body JSON de la petición (vacío = [], JSON roto = error 400)
     public static function body(): array
     {
-        $datos = json_decode(file_get_contents('php://input'), true);
-        return is_array($datos) ? $datos : [];
+        $crudo = file_get_contents('php://input');
+        if ($crudo === '' || $crudo === false) {
+            return [];
+        }
+        $datos = json_decode($crudo, true);
+        if (!is_array($datos)) {
+            throw new ApiException('El cuerpo de la petición debe ser un objeto JSON válido', 400);
+        }
+        return $datos;
     }
 }

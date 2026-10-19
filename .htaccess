@@ -3,3 +3,6 @@
     Require all denied
 </FilesMatch>
 RedirectMatch 403 ^.*/(vendor|database)/.*$
+
+# /api sin barra final -> /api/
+RedirectMatch 301 ^(.*/api)$ $1/

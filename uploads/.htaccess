@@ -1,0 +1,5 @@
+# Las subidas solo pueden ser imágenes: nunca ejecutar PHP aquí ni listar la carpeta
+Options -Indexes
+<FilesMatch "\.(php|phtml|phar|php\d|pht|cgi|pl|py|sh)$">
+    Require all denied
+</FilesMatch>

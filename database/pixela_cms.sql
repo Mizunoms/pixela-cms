@@ -4,6 +4,8 @@
 -- Modelo en 3FN + bloques modulares en JSON
 -- =====================================================
 
+SET NAMES utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS pixela_cms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE pixela_cms;
 

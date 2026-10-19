@@ -1,8 +1,9 @@
-# Envía todas las peticiones a index.php (router)
+# Todas las peticiones a /api pasan por index.php (el router decide qué responder).
+# Así ninguna carpeta interna (config, core, services...) se puede abrir desde el navegador,
+# y una ruta como /api/config no choca con la carpeta api/config/.
 RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
+DirectorySlash Off
+Options -Indexes
 
-# Bloquea acceso directo a carpetas internas
-RedirectMatch 403 ^.*/api/(config|core|controllers|services|middleware)/.*$
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^ index.php [QSA,L]

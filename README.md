@@ -23,8 +23,8 @@ El instalador crea la base de datos y la configuración automáticamente.
 | Semana | Hito | Estado |
 |---|---|---|
 | 1 | Cimientos: DER, servidor básico y endpoints de autenticación | ✅ Completado |
-| 2 | Motor: CRUD de bloques, subida de imágenes, configuración de colores | ⏳ En desarrollo |
-| 3 | Panel admin responsive | Pendiente |
+| 2 | Motor: CRUD de bloques, subida de imágenes, configuración de colores | ✅ Completado |
+| 3 | Panel admin responsive | ⏳ Siguiente |
 | 4 | Web pública con variables CSS dinámicas y QA responsive | Pendiente |
 
 ## Stack
@@ -46,15 +46,15 @@ La guía marca las tecnologías como opcionales. Se usa PHP + MySQL, cumpliendo 
 pixela-cms/
 ├── api/            API REST (punto de entrada: index.php)
 │   ├── config/     conexión a BD y lectura del .env
-│   ├── core/       router y respuestas JSON
+│   ├── core/       router, respuestas JSON, validaciones y errores
 │   ├── controllers/
 │   ├── services/   lógica de negocio
 │   └── middleware/ validación de JWT y roles
 ├── admin/          panel de control (semana 3)
 ├── public/         web pública (semana 4)
-├── uploads/        imágenes procesadas
+├── uploads/        imágenes procesadas (sin ejecución de PHP)
 ├── database/       script SQL (pixela_cms.sql)
-├── docs/           DER y tabla de entidades
+├── docs/           DER, tabla de entidades y colección de Postman
 ├── vendor/         librería JWT (incluida, no requiere Composer)
 ├── instalar.php    instalador web
 ├── .env.example
@@ -69,27 +69,65 @@ Diagrama: [`docs/DER_pixela_cms.pdf`](docs/DER_pixela_cms.pdf)
 
 ## Endpoints
 
-Base: `http://localhost/NOMBRE-DE-LA-CARPETA/api`
+Base: `http://localhost/NOMBRE-DE-LA-CARPETA/api` · Todas las respuestas son JSON: `{ "ok": true, "mensaje": "...", "data": ... }` o `{ "ok": false, "error": "..." }`.
+
+**Roles:** `admin` puede todo; `editor` gestiona contenido (páginas, bloques, menú e imágenes) pero no la configuración global.
+
+### Público (lo consume la web)
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/` | Estado de la API y la base de datos |
+| GET | `/config` | Nombre, logo, colores HEX, `css_variables` listas para el front, contacto y redes |
+| GET | `/menu` | Árbol del menú visible, con submenús |
+| GET | `/inicio` | Página de inicio con sus bloques visibles en orden |
+| GET | `/paginas/{slug}` | Cualquier página publicada con sus bloques visibles |
+
+### Autenticación
 
 | Método | Ruta | Acceso | Descripción |
 |---|---|---|---|
-| GET | `/` | Público | Estado de la API y la base de datos |
 | POST | `/auth/login` | Público | Inicia sesión; guarda el JWT en cookie httpOnly |
 | POST | `/auth/logout` | Público | Cierra sesión |
 | GET | `/auth/me` | Logueado | Datos del usuario actual |
-| GET | `/admin/ping` | Solo admin | Prueba de protección por rol |
 
-Ejemplo de login:
+### Panel admin
 
-```json
-POST /auth/login
-{ "email": "admin@pixela.pe", "password": "Pixela2026!" }
-```
+| Método | Ruta | Acceso | Descripción |
+|---|---|---|---|
+| PUT | `/admin/config` | Admin | Cambia colores, logo, nombre, WhatsApp, redes (parcial) |
+| GET | `/admin/paginas` | Editor | Lista páginas con su cantidad de bloques |
+| POST | `/admin/paginas` | Editor | Crea página (el slug se genera del título si no se envía) |
+| GET | `/admin/paginas/{id}` | Editor | Página con todos sus bloques, incluidos los ocultos |
+| PUT | `/admin/paginas/{id}` | Editor | Edita título, slug, publicada o la marca como inicio |
+| DELETE | `/admin/paginas/{id}` | Editor | Borra la página y sus bloques (no permite borrar el inicio) |
+| GET | `/admin/bloques/tipos` | Editor | Tipos de bloque disponibles |
+| GET | `/admin/paginas/{id}/bloques` | Editor | Bloques de una página en orden |
+| POST | `/admin/paginas/{id}/bloques` | Editor | Crea bloque `{ tipo, contenido: {...}, visible }` |
+| PUT | `/admin/paginas/{id}/bloques/orden` | Editor | Reordena: `{ "ids": [3, 1, 2] }` |
+| GET / PUT / DELETE | `/admin/bloques/{id}` | Editor | Ver, editar contenido/visibilidad o borrar un bloque |
+| GET | `/admin/menu` | Editor | Menú completo, incluidos ocultos |
+| POST | `/admin/menu` | Editor | Crea ítem: destino `pagina_id` o `url_externa`, `parent_id` para submenú |
+| PUT | `/admin/menu/orden` | Editor | Reordena y mueve entre padres: `{ "items": [{ id, parent_id, orden }] }` |
+| PUT / DELETE | `/admin/menu/{id}` | Editor | Edita o borra un ítem (borra también sus submenús) |
+| GET | `/admin/media` | Editor | Biblioteca de imágenes con variantes, `url` y `srcset` |
+| POST | `/admin/media` | Editor | Sube imagen (`multipart/form-data`, campo `imagen`) |
+| PUT / DELETE | `/admin/media/{id}` | Editor | Edita el texto alternativo o borra la imagen y sus archivos |
+
+### Imágenes
+
+Al subir una imagen (JPG, PNG, WEBP o GIF, máximo 5 MB) se generan versiones de **480, 768 y 1280 px en WEBP** con GD, conservando la transparencia. Si la imagen es más chica, se guarda a su tamaño. La respuesta trae un `srcset` listo para `<img srcset="...">`.
+
+### Probar con Postman
+
+Importa [`docs/pixela-cms.postman_collection.json`](docs/pixela-cms.postman_collection.json) en Postman (**Import → archivo**). Ejecuta primero **1. Auth → Login admin**: Postman guarda la cookie y la usa en el resto. Trae 39 peticiones con pruebas automáticas (casos correctos y de error).
 
 ## Seguridad
 
 - Contraseñas con `password_hash` (bcrypt).
 - JWT firmado en cookie `HttpOnly` (no accesible desde JavaScript).
 - Consultas con PDO y sentencias preparadas.
+- Validación de todos los datos de entrada (colores HEX, slugs, URLs, tipos de bloque, JSON).
+- Imágenes validadas por su contenido real (no por la extensión) y carpeta `uploads/` sin ejecución de PHP.
 - `.env`, `vendor/`, `config/`, `services/` y demás carpetas internas bloqueadas por `.htaccess`.
 - Credenciales fuera del repositorio (`.env` en `.gitignore`).

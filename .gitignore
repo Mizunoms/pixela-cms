@@ -12,6 +12,7 @@ node_modules/
 # Imágenes subidas desde el admin
 uploads/*
 !uploads/.gitkeep
+!uploads/.htaccess
 
 # Logs y temporales
 *.log
