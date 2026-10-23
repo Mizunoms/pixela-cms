@@ -1,0 +1,5 @@
+# Los archivos que empiezan con "_" son internos del panel: no se abren desde el navegador
+<FilesMatch "^_">
+    Require all denied
+</FilesMatch>
+Options -Indexes

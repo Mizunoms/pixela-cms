@@ -28,6 +28,10 @@
     {
       "key": "media_id",
       "value": "1"
+    },
+    {
+      "key": "mensaje_id",
+      "value": "1"
     }
   ],
   "item": [
@@ -1183,7 +1187,7 @@
             "description": "Envía TODOS los ítems con su padre y orden. Aquí: Portafolio pasa al 2.º lugar y Diseño web queda como submenú de Servicios.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"items\": [\n    {\n      \"id\": 1,\n      \"parent_id\": null,\n      \"orden\": 1\n    },\n    {\n      \"id\": \"{{menu_id}}\",\n      \"parent_id\": null,\n      \"orden\": 2\n    },\n    {\n      \"id\": 2,\n      \"parent_id\": null,\n      \"orden\": 3\n    },\n    {\n      \"id\": \"{{submenu_id}}\",\n      \"parent_id\": 2,\n      \"orden\": 1\n    },\n    {\n      \"id\": 3,\n      \"parent_id\": null,\n      \"orden\": 4\n    },\n    {\n      \"id\": 4,\n      \"parent_id\": null,\n      \"orden\": 5\n    }\n  ]\n}",
+              "raw": "{\n  \"items\": [\n    {\n      \"id\": 1,\n      \"parent_id\": null,\n      \"orden\": 1\n    },\n    {\n      \"id\": \"{{menu_id}}\",\n      \"parent_id\": null,\n      \"orden\": 2\n    },\n    {\n      \"id\": 2,\n      \"parent_id\": null,\n      \"orden\": 3\n    },\n    {\n      \"id\": 5,\n      \"parent_id\": 2,\n      \"orden\": 1\n    },\n    {\n      \"id\": 6,\n      \"parent_id\": 2,\n      \"orden\": 2\n    },\n    {\n      \"id\": \"{{submenu_id}}\",\n      \"parent_id\": 2,\n      \"orden\": 3\n    },\n    {\n      \"id\": 3,\n      \"parent_id\": null,\n      \"orden\": 4\n    },\n    {\n      \"id\": 4,\n      \"parent_id\": null,\n      \"orden\": 5\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1483,7 +1487,235 @@
       ]
     },
     {
-      "name": "8. Cerrar sesión",
+      "name": "8. Dashboard y mensajes",
+      "item": [
+        {
+          "name": "Resumen del dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/resumen",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "resumen"
+              ]
+            },
+            "description": "Totales para las tarjetas del panel."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enviar mensaje (formulario de la web)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/contacto",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "contacto"
+              ]
+            },
+            "description": "Público: lo usa el formulario de contacto.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"María Torres\",\n  \"email\": \"maria@correo.com\",\n  \"telefono\": \"987654321\",\n  \"servicio_interes\": \"Página web\",\n  \"mensaje\": \"Hola, quiero una web para mi pastelería con catálogo.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 201\", () => pm.response.to.have.status(201));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));",
+                  "if (pm.response.code === 201) pm.collectionVariables.set(\"mensaje_id\", pm.response.json().data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mensaje incompleto",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/contacto",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "contacto"
+              ]
+            },
+            "description": "Debe responder 422.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"email\": \"malo\",\n  \"mensaje\": \"hola\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 422\", () => pm.response.to.have.status(422));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bandeja de mensajes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/mensajes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "mensajes"
+              ]
+            },
+            "description": "Mensajes recibidos, primero los no leídos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Marcar como leído",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/mensajes/{{mensaje_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "mensajes",
+                "{{mensaje_id}}"
+              ]
+            },
+            "description": "Cambia el estado leído.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"leido\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar mensaje",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/admin/mensajes/{{mensaje_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "admin",
+                "mensajes",
+                "{{mensaje_id}}"
+              ]
+            },
+            "description": "Borra el mensaje."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Responde 200\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Respuesta JSON con ok\", () => pm.expect(pm.response.json()).to.have.property(\"ok\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. Cerrar sesión",
       "item": [
         {
           "name": "Logout",

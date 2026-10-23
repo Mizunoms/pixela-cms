@@ -43,6 +43,7 @@ $router->get('/config',          [ConfigController::class, 'obtener']);
 $router->get('/menu',            [MenuController::class, 'publico']);
 $router->get('/inicio',          [PaginaController::class, 'inicio']);
 $router->get('/paginas/{slug}',  [PaginaController::class, 'publica']);
+$router->post('/contacto',       [MensajeController::class, 'crear']);
 
 // ---------- Autenticación ----------
 $router->post('/auth/login',  [AuthController::class, 'login']);
@@ -51,6 +52,7 @@ $router->get('/auth/me',      [AuthController::class, 'me'], [$logueado]);
 
 // ---------- Panel admin ----------
 $router->get('/admin/ping', [HealthController::class, 'adminPing'], [$admin]);
+$router->get('/admin/resumen', [ResumenController::class, 'obtener'], [$editor]);
 
 // Configuración global (colores, logo, contacto)
 $router->put('/admin/config', [ConfigController::class, 'actualizar'], [$admin]);
@@ -83,5 +85,10 @@ $router->get('/admin/media',         [MediaController::class, 'listar'],     [$e
 $router->post('/admin/media',        [MediaController::class, 'subir'],      [$editor]);
 $router->put('/admin/media/{id}',    [MediaController::class, 'actualizar'], [$editor]);
 $router->delete('/admin/media/{id}', [MediaController::class, 'eliminar'],   [$editor]);
+
+// Mensajes del formulario de contacto
+$router->get('/admin/mensajes',         [MensajeController::class, 'listar'],   [$editor]);
+$router->put('/admin/mensajes/{id}',    [MensajeController::class, 'marcar'],   [$editor]);
+$router->delete('/admin/mensajes/{id}', [MensajeController::class, 'eliminar'], [$editor]);
 
 $router->ejecutar($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

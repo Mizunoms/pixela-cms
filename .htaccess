@@ -6,3 +6,10 @@ RedirectMatch 403 ^.*/(vendor|database)/.*$
 
 # /api sin barra final -> /api/
 RedirectMatch 301 ^(.*/api)$ $1/
+
+# Web pública: /servicios, /contacto, etc. los atiende index.php
+# (los archivos y carpetas reales como /admin, /api o /uploads se sirven normal)
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]

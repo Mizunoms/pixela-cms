@@ -437,12 +437,19 @@ $svg = fn(string $paths, string $clase = 'ico') =>
         </div>
 
         <div class="acciones">
-            <a class="boton" href="<?= $e($urlApi) ?>" target="_blank">
+            <a class="boton" href="<?= $e($base) ?>/admin/" target="_blank">
+                <?= $svg('<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>', '') ?>
+                Entrar al panel admin
+            </a>
+            <a class="boton" href="<?= $e($base) ?>/" target="_blank">
                 <?= $svg('<path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/><circle cx="12" cy="12" r="10"/>', '') ?>
+                Ver la web pública
+            </a>
+            <a class="boton" href="<?= $e($urlApi) ?>" target="_blank">
+                <?= $svg('<path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/>', '') ?>
                 Probar la API
             </a>
         </div>
-        <p style="margin-top:12px;font-size:13px">Debe mostrar <code>"bd":"conectada"</code></p>
     </section>
 
 <?php else: ?>
@@ -484,7 +491,7 @@ $svg = fn(string $paths, string $clase = 'ico') =>
         </details>
 
         <?php if ($instalado): ?>
-            <div class="alerta info"><?= $svg('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', '') ?><span class="txt">El sistema ya está instalado. <a href="<?= $e($urlApi) ?>" target="_blank">Ver la API</a></span></div>
+            <div class="alerta info"><?= $svg('<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', '') ?><span class="txt">El sistema ya está instalado. <a href="<?= $e($base) ?>/admin/" target="_blank">Panel admin</a> · <a href="<?= $e($base) ?>/" target="_blank">Web</a> · <a href="<?= $e($urlApi) ?>" target="_blank">API</a></span></div>
             <label class="confirmar"><input type="checkbox" name="confirmar" value="si"> Quiero reinstalar y borrar los datos actuales</label>
         <?php endif; ?>
 

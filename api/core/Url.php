@@ -3,11 +3,14 @@
 
 class Url
 {
-    // Ej: /pixela-cms  (la API vive en /pixela-cms/api/index.php)
+    // Ej: /pixela-cms  — sirve tanto si se llama desde /api/index.php, /admin/... o el index.php de la raíz
     public static function base(): string
     {
-        $api = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
-        return rtrim(str_replace('\\', '/', dirname($api)), '/');
+        $dir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
+        if (in_array(basename($dir), ['api', 'admin'], true)) {
+            $dir = dirname($dir);
+        }
+        return rtrim(str_replace('\\', '/', $dir), '/');
     }
 
     // Ej: uploads/2026/10/abc-480.webp  ->  /pixela-cms/uploads/2026/10/abc-480.webp

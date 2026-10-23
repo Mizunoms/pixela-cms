@@ -77,10 +77,10 @@ CREATE TABLE site_config (
     eslogan          VARCHAR(200) NULL,
     logo_id          INT UNSIGNED NULL,
     favicon_id       INT UNSIGNED NULL,
-    color_primario   CHAR(7) NOT NULL DEFAULT '#7C3AED',
+    color_primario   CHAR(7) NOT NULL DEFAULT '#8B5CF6',
     color_secundario CHAR(7) NOT NULL DEFAULT '#2563EB',
-    color_acento     CHAR(7) NOT NULL DEFAULT '#22D3EE',
-    color_fondo      CHAR(7) NOT NULL DEFAULT '#0F0F1A',
+    color_acento     CHAR(7) NOT NULL DEFAULT '#C8FF3D',
+    color_fondo      CHAR(7) NOT NULL DEFAULT '#0B0B14',
     color_texto      CHAR(7) NOT NULL DEFAULT '#F5F5FA',
     whatsapp         VARCHAR(20)  NULL,
     email_contacto   VARCHAR(150) NULL,
@@ -167,7 +167,7 @@ INSERT INTO usuarios (rol_id, nombre, email, password_hash) VALUES
 
 INSERT INTO site_config (id, nombre_sitio, eslogan, whatsapp, email_contacto, direccion, redes_sociales) VALUES
 (1, 'Pixela', 'Llevamos tu negocio a internet', '51999999999', 'contacto@pixela.pe', 'Lima, Perú',
- '{"facebook": "", "instagram": "", "tiktok": "", "linkedin": ""}');
+ '{"facebook": "", "instagram": "https://instagram.com/", "tiktok": "", "linkedin": "", "youtube": ""}');
 
 INSERT INTO paginas (titulo, slug, meta_descripcion, es_inicio) VALUES
 ('Inicio',     'inicio',     'Estudio digital: webs, branding, redes y sistemas a medida', 1),
@@ -175,67 +175,374 @@ INSERT INTO paginas (titulo, slug, meta_descripcion, es_inicio) VALUES
 ('Plantillas', 'plantillas', 'Webs listas por rubro para lanzar rápido', 0),
 ('Contacto',   'contacto',   'Cotiza tu proyecto con Pixela', 0);
 
-INSERT INTO menu_items (parent_id, pagina_id, etiqueta, orden) VALUES
-(NULL, 1, 'Inicio',     1),
-(NULL, 2, 'Servicios',  2),
-(NULL, 3, 'Plantillas', 3),
-(NULL, 4, 'Contacto',   4);
+INSERT INTO menu_items (id, parent_id, pagina_id, etiqueta, url_externa, orden) VALUES
+(1, NULL, 1,    'Inicio',           NULL,              1),
+(2, NULL, 2,    'Servicios',        NULL,              2),
+(3, NULL, 3,    'Plantillas',       NULL,              3),
+(4, NULL, 4,    'Contacto',         NULL,              4),
+(5, 2,    NULL, 'Qué hacemos',      '/servicios#servicios', 1),
+(6, 2,    NULL, 'Planes y precios', '/servicios#planes',    2);
 
--- Bloques de la página de inicio
+-- Bloques de cada página (el contenido de cada bloque va en JSON)
 INSERT INTO page_components (pagina_id, tipo, orden, contenido) VALUES
 (1, 'hero', 1, '{
-  "titulo": "Llevamos tu negocio a internet",
+  "etiqueta": "Estudio digital · Lima",
+  "titulo": "Llevamos tu negocio a",
+  "resaltado": "internet",
   "subtitulo": "Webs, branding, redes y sistemas a medida para negocios que quieren crecer.",
   "boton_texto": "Cotiza gratis",
   "boton_url": "/contacto",
+  "boton2_texto": "Ver plantillas",
+  "boton2_url": "/plantillas",
   "imagen_id": null
 }'),
 (1, 'servicios', 2, '{
+  "etiqueta": "Servicios",
   "titulo": "¿Qué hacemos?",
   "items": [
-    {"icono": "code",      "titulo": "Diseño web",          "descripcion": "Páginas rápidas, modernas y adaptadas a celular."},
-    {"icono": "palette",   "titulo": "Branding",            "descripcion": "Logo, colores e identidad visual de tu marca."},
-    {"icono": "share",     "titulo": "Redes sociales",      "descripcion": "Contenido y gestión de tus redes."},
-    {"icono": "database",  "titulo": "Sistemas a medida",   "descripcion": "Inventarios, reservas y gestión interna."},
-    {"icono": "server",    "titulo": "Hosting y dominio",   "descripcion": "Tu web siempre en línea con correo corporativo."},
-    {"icono": "wrench",    "titulo": "Mantenimiento",       "descripcion": "Soporte y actualizaciones mensuales."}
+    {
+      "icono": "code",
+      "titulo": "Diseño web",
+      "descripcion": "Páginas rápidas, modernas y adaptadas a celular."
+    },
+    {
+      "icono": "palette",
+      "titulo": "Branding",
+      "descripcion": "Logo, colores e identidad visual de tu marca."
+    },
+    {
+      "icono": "share",
+      "titulo": "Redes sociales",
+      "descripcion": "Contenido y gestión mensual de tus redes."
+    },
+    {
+      "icono": "database",
+      "titulo": "Sistemas a medida",
+      "descripcion": "Inventarios, reservas y gestión interna."
+    },
+    {
+      "icono": "server",
+      "titulo": "Hosting y dominio",
+      "descripcion": "Tu web siempre en línea con correo corporativo."
+    },
+    {
+      "icono": "wrench",
+      "titulo": "Mantenimiento",
+      "descripcion": "Soporte, copias de seguridad y actualizaciones."
+    }
   ]
 }'),
-(1, 'plantillas', 3, '{
-  "titulo": "Plantillas listas por rubro",
+(1, 'portafolio', 3, '{
+  "etiqueta": "Portafolio",
+  "titulo": "Trabajos recientes",
   "items": [
-    {"nombre": "Barbería",          "precio": 350, "imagen_id": null},
-    {"nombre": "Restaurante",       "precio": 400, "imagen_id": null},
-    {"nombre": "Servicios del hogar","precio": 350, "imagen_id": null}
+    {
+      "titulo": "Barbería El Corte",
+      "categoria": "Web + reservas",
+      "imagen_id": null,
+      "url": ""
+    },
+    {
+      "titulo": "Pollería Don Lucho",
+      "categoria": "Carta digital QR",
+      "imagen_id": null,
+      "url": ""
+    },
+    {
+      "titulo": "CETPRO Mangomarca",
+      "categoria": "Web institucional",
+      "imagen_id": null,
+      "url": ""
+    }
   ]
 }'),
-(1, 'planes', 4, '{
-  "titulo": "Paquetes",
+(1, 'proceso', 4, '{
+  "etiqueta": "Así trabajamos",
+  "titulo": "De la idea a internet en 4 pasos",
+  "pasos": [
+    "Conversamos tu idea",
+    "Diseñamos la propuesta",
+    "Desarrollamos y probamos",
+    "Lanzamos y te capacitamos"
+  ]
+}'),
+(1, 'planes', 5, '{
+  "etiqueta": "Paquetes",
+  "titulo": "Elige tu plan",
   "items": [
-    {"nombre": "Básico",   "precio": 499,  "destacado": false, "incluye": ["Landing page", "WhatsApp", "Dominio 1 año"]},
-    {"nombre": "Estándar", "precio": 899,  "destacado": true,  "incluye": ["Web de 5 secciones", "Branding básico", "Hosting 1 año"]},
-    {"nombre": "Premium",  "precio": 1499, "destacado": false, "incluye": ["Web + panel admin", "Branding completo", "Mantenimiento 3 meses"]}
+    {
+      "nombre": "Básico",
+      "precio": 499,
+      "destacado": false,
+      "incluye": [
+        "Landing page de 1 sección",
+        "Botón de WhatsApp",
+        "Dominio .com 1 año"
+      ]
+    },
+    {
+      "nombre": "Estándar",
+      "precio": 899,
+      "destacado": true,
+      "incluye": [
+        "Web de 5 secciones",
+        "Branding básico",
+        "Hosting 1 año",
+        "Formulario de contacto"
+      ]
+    },
+    {
+      "nombre": "Premium",
+      "precio": 1499,
+      "destacado": false,
+      "incluye": [
+        "Web + panel administrable",
+        "Branding completo",
+        "Mantenimiento 3 meses",
+        "Capacitación"
+      ]
+    }
   ]
-}'),
-(1, 'proceso', 5, '{
-  "titulo": "¿Cómo trabajamos?",
-  "pasos": ["Conversamos tu idea", "Diseñamos la propuesta", "Desarrollamos", "Lanzamos y te capacitamos"]
 }'),
 (1, 'testimonios', 6, '{
-  "titulo": "Lo que dicen nuestros clientes",
+  "etiqueta": "Clientes",
+  "titulo": "Lo que dicen de nosotros",
   "items": [
-    {"nombre": "Carlos R.", "negocio": "Barbería El Corte", "texto": "Ahora mis clientes reservan por WhatsApp desde la web."}
+    {
+      "nombre": "Carlos R.",
+      "negocio": "Barbería El Corte",
+      "texto": "Ahora mis clientes reservan por WhatsApp desde la web. Se nota en la caja."
+    },
+    {
+      "nombre": "Lucía M.",
+      "negocio": "Pastelería Dulce Lu",
+      "texto": "Me armaron el logo y la web en dos semanas. Todo muy claro y rápido."
+    },
+    {
+      "nombre": "Jorge P.",
+      "negocio": "Taller JP Motors",
+      "texto": "El panel es facilísimo. Cambio precios y fotos yo mismo sin llamar a nadie."
+    }
   ]
 }'),
 (1, 'faq', 7, '{
+  "etiqueta": "Dudas",
   "titulo": "Preguntas frecuentes",
   "items": [
-    {"pregunta": "¿Cuánto demora mi web?", "respuesta": "Entre 1 y 3 semanas según el paquete."},
-    {"pregunta": "¿Puedo editarla yo mismo?", "respuesta": "Sí, con el plan Premium tienes tu propio panel."}
+    {
+      "pregunta": "¿Cuánto demora mi web?",
+      "respuesta": "Entre 1 y 3 semanas, según el paquete que elijas."
+    },
+    {
+      "pregunta": "¿Puedo editarla yo mismo?",
+      "respuesta": "Sí. Con el plan Premium tienes tu propio panel para cambiar textos, colores y fotos."
+    },
+    {
+      "pregunta": "¿Incluye dominio y hosting?",
+      "respuesta": "Los planes Estándar y Premium incluyen 1 año de hosting y dominio .com."
+    },
+    {
+      "pregunta": "¿Cómo pago?",
+      "respuesta": "50% al iniciar y 50% al entregar. Aceptamos transferencia, Yape y Plin."
+    }
   ]
 }'),
-(1, 'contacto', 8, '{
-  "titulo": "Hablemos de tu proyecto",
+(1, 'cta', 8, '{
+  "titulo": "¿Listo para llevar tu negocio a internet?",
+  "subtitulo": "Cuéntanos tu idea y te enviamos una propuesta gratis en 24 horas.",
+  "boton_texto": "Cotizar ahora",
+  "boton_url": "/contacto"
+}'),
+(2, 'hero', 1, '{
+  "etiqueta": "Servicios",
+  "titulo": "Todo lo que tu negocio",
+  "resaltado": "necesita",
+  "subtitulo": "Desde el logo hasta el sistema de reservas: un solo equipo para todo lo digital.",
+  "boton_texto": "Ver planes",
+  "boton_url": "#planes",
+  "boton2_texto": "",
+  "boton2_url": "",
+  "imagen_id": null
+}'),
+(2, 'servicios', 2, '{
+  "etiqueta": "Qué incluye",
+  "titulo": "Nuestros servicios",
+  "items": [
+    {
+      "icono": "code",
+      "titulo": "Diseño web",
+      "descripcion": "Páginas rápidas, modernas y adaptadas a celular."
+    },
+    {
+      "icono": "palette",
+      "titulo": "Branding",
+      "descripcion": "Logo, colores e identidad visual de tu marca."
+    },
+    {
+      "icono": "share",
+      "titulo": "Redes sociales",
+      "descripcion": "Contenido y gestión mensual de tus redes."
+    },
+    {
+      "icono": "database",
+      "titulo": "Sistemas a medida",
+      "descripcion": "Inventarios, reservas y gestión interna."
+    },
+    {
+      "icono": "server",
+      "titulo": "Hosting y dominio",
+      "descripcion": "Tu web siempre en línea con correo corporativo."
+    },
+    {
+      "icono": "wrench",
+      "titulo": "Mantenimiento",
+      "descripcion": "Soporte, copias de seguridad y actualizaciones."
+    }
+  ]
+}'),
+(2, 'proceso', 3, '{
+  "etiqueta": "Así trabajamos",
+  "titulo": "De la idea a internet en 4 pasos",
+  "pasos": [
+    "Conversamos tu idea",
+    "Diseñamos la propuesta",
+    "Desarrollamos y probamos",
+    "Lanzamos y te capacitamos"
+  ]
+}'),
+(2, 'planes', 4, '{
+  "etiqueta": "Paquetes",
+  "titulo": "Elige tu plan",
+  "items": [
+    {
+      "nombre": "Básico",
+      "precio": 499,
+      "destacado": false,
+      "incluye": [
+        "Landing page de 1 sección",
+        "Botón de WhatsApp",
+        "Dominio .com 1 año"
+      ]
+    },
+    {
+      "nombre": "Estándar",
+      "precio": 899,
+      "destacado": true,
+      "incluye": [
+        "Web de 5 secciones",
+        "Branding básico",
+        "Hosting 1 año",
+        "Formulario de contacto"
+      ]
+    },
+    {
+      "nombre": "Premium",
+      "precio": 1499,
+      "destacado": false,
+      "incluye": [
+        "Web + panel administrable",
+        "Branding completo",
+        "Mantenimiento 3 meses",
+        "Capacitación"
+      ]
+    }
+  ]
+}'),
+(2, 'cta', 5, '{
+  "titulo": "¿Listo para llevar tu negocio a internet?",
+  "subtitulo": "Cuéntanos tu idea y te enviamos una propuesta gratis en 24 horas.",
+  "boton_texto": "Cotizar ahora",
+  "boton_url": "/contacto"
+}'),
+(3, 'hero', 1, '{
+  "etiqueta": "Plantillas",
+  "titulo": "Tu web lista en",
+  "resaltado": "días",
+  "subtitulo": "Elige una plantilla diseñada para tu rubro y la adaptamos a tu marca.",
+  "boton_texto": "Quiero una",
+  "boton_url": "/contacto",
+  "boton2_texto": "",
+  "boton2_url": "",
+  "imagen_id": null
+}'),
+(3, 'plantillas', 2, '{
+  "etiqueta": "Listas para usar",
+  "titulo": "Plantillas por rubro",
+  "items": [
+    {
+      "nombre": "Corte Fino",
+      "rubro": "Barbería",
+      "precio": 350,
+      "imagen_id": null
+    },
+    {
+      "nombre": "Sazón Criolla",
+      "rubro": "Restaurante",
+      "precio": 400,
+      "imagen_id": null
+    },
+    {
+      "nombre": "Casa en Orden",
+      "rubro": "Servicios del hogar",
+      "precio": 350,
+      "imagen_id": null
+    },
+    {
+      "nombre": "Vida Sana",
+      "rubro": "Consultorio",
+      "precio": 420,
+      "imagen_id": null
+    }
+  ]
+}'),
+(3, 'texto', 3, '{
+  "etiqueta": "¿Cómo funciona?",
+  "titulo": "Plantilla + tu marca",
+  "texto": "Cada plantilla ya viene con las secciones que tu rubro necesita.\\nNosotros cambiamos colores, textos, fotos y logo para que se vea 100% tuya, y la publicamos con tu dominio."
+}'),
+(3, 'cta', 4, '{
+  "titulo": "¿Listo para llevar tu negocio a internet?",
+  "subtitulo": "Cuéntanos tu idea y te enviamos una propuesta gratis en 24 horas.",
+  "boton_texto": "Cotizar ahora",
+  "boton_url": "/contacto"
+}'),
+(4, 'hero', 1, '{
+  "etiqueta": "Contacto",
+  "titulo": "Hablemos de tu",
+  "resaltado": "proyecto",
+  "subtitulo": "Escríbenos por el formulario o por WhatsApp. Respondemos en menos de 24 horas.",
+  "boton_texto": "",
+  "boton_url": "",
+  "boton2_texto": "",
+  "boton2_url": "",
+  "imagen_id": null
+}'),
+(4, 'contacto', 2, '{
+  "etiqueta": "Escríbenos",
+  "titulo": "Cuéntanos qué necesitas",
+  "texto": "Déjanos tus datos y te enviamos una propuesta sin costo.",
   "mostrar_formulario": true,
   "mostrar_mapa": true
+}'),
+(4, 'faq', 3, '{
+  "etiqueta": "Dudas",
+  "titulo": "Preguntas frecuentes",
+  "items": [
+    {
+      "pregunta": "¿Cuánto demora mi web?",
+      "respuesta": "Entre 1 y 3 semanas, según el paquete que elijas."
+    },
+    {
+      "pregunta": "¿Puedo editarla yo mismo?",
+      "respuesta": "Sí. Con el plan Premium tienes tu propio panel para cambiar textos, colores y fotos."
+    },
+    {
+      "pregunta": "¿Incluye dominio y hosting?",
+      "respuesta": "Los planes Estándar y Premium incluyen 1 año de hosting y dominio .com."
+    },
+    {
+      "pregunta": "¿Cómo pago?",
+      "respuesta": "50% al iniciar y 50% al entregar. Aceptamos transferencia, Yape y Plin."
+    }
+  ]
 }');

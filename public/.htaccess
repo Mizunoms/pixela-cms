@@ -1,0 +1,6 @@
+# Los .php de esta carpeta (plantilla y bloques) solo se usan desde el index.php de la raíz;
+# no se pueden abrir directamente desde el navegador. Las imágenes, CSS y JS sí se sirven.
+<FilesMatch "\.php$">
+    Require all denied
+</FilesMatch>
+Options -Indexes
