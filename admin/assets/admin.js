@@ -53,6 +53,7 @@ const ICONOS = {
     bloques: '<rect x="3" y="3" width="18" height="7" rx="1"/><rect x="3" y="14" width="18" height="7" rx="1"/>',
     copiar: '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
     externo: '<path d="M7 17 17 7M7 7h10v10"/>',
+    palette: '<circle cx="13.5" cy="6.5" r="1.5"/><circle cx="17.5" cy="10.5" r="1.5"/><circle cx="8.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="12.5" r="1.5"/><path d="M12 2a10 10 0 0 0 0 20c1 0 1.5-.8 1.5-1.5 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.8.7-1.5 1.5-1.5H16a6 6 0 0 0 6-6c0-4.4-4.5-8.8-10-8.8Z"/>',
     mas: '<path d="M12 5v14M5 12h14"/>',
     correo: '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/>',
     check: '<path d="M20 6 9 17l-5-5"/>',
@@ -163,10 +164,10 @@ const T = (nombre, etiqueta, extra = {}) => ({ nombre, etiqueta, tipo: 'texto', 
 const ENCABEZADO = [T('etiqueta', 'Etiqueta (texto pequeño)'), T('titulo', 'Título')];
 
 const BLOQUES = {
-    hero: { nombre: 'Hero / Portada', desc: 'Título grande con botones e imagen', color: 'lila', campos: [
+    hero: { nombre: 'Portada', desc: 'Lo primero que se ve: título grande, botones e imagen', color: 'lila', campos: [
         T('etiqueta', 'Etiqueta'), T('titulo', 'Título'), T('resaltado', 'Palabra resaltada (va al final del título)'),
         T('subtitulo', 'Subtítulo', { tipo: 'area' }),
-        { fila: [T('boton_texto', 'Texto del botón'), T('boton_url', 'Enlace del botón', { ayuda: '/contacto, #planes o https://' })] },
+        { fila: [T('boton_texto', 'Texto del botón'), T('boton_url', 'Enlace del botón')] },
         { fila: [T('boton2_texto', 'Texto botón 2'), T('boton2_url', 'Enlace botón 2')] },
         { nombre: 'imagen_id', etiqueta: 'Imagen (si no eliges, se usa el logo)', tipo: 'imagen' }] },
     servicios: { nombre: 'Servicios', desc: 'Tarjetas con ícono, título y descripción', color: 'cielo', campos: [...ENCABEZADO,
@@ -253,8 +254,11 @@ const editor = {
                             ${this.campos(c.campos, it, [...r, i])}</div>`).join('')}
                         <button class="btn chico" type="button" data-agregar='${esc(JSON.stringify(r))}' data-esquema="${esc(c.nombre)}">${ico('mas')} Agregar ${esc(c.item.toLowerCase())}</button></div>`;
                 }
-                default:
-                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><input class="campo" type="text" value="${esc(v)}" ${data}>${ayuda}</div>`;
+                default: {
+                    const esEnlace = /url$/.test(c.nombre);
+                    const ayudaEnlace = esEnlace && !c.ayuda ? '<div class="ayuda">Elige una página de la lista o pega un enlace (https://...)</div>' : ayuda;
+                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><input class="campo" type="text" value="${esc(v)}" ${esEnlace ? 'list="enlacesSitio" placeholder="Ej. /contacto"' : ''} ${data}>${ayudaEnlace}</div>`;
+                }
             }
         }).join('');
     },
@@ -347,9 +351,10 @@ async function vistaDashboard() {
     const hora = new Date().getHours();
     const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
 
-    vista.innerHTML = cabecera(`${saludo}, ${esc(USUARIO.nombre.split(' ')[0])} 👋`, '// todo en línea · los cambios se ven en la web al instante',
+    vista.innerHTML = cabecera(`${saludo}, ${esc(USUARIO.nombre.split(' ')[0])} 👋`, 'Desde aquí manejas toda tu web. Lo que cambies se ve al instante.',
         `<a class="btn blanco" href="${SITIO}" target="_blank" rel="noopener">${ico('externo')} Ver sitio</a><button class="btn" type="button" id="nuevaPag">${ico('mas')} Nueva página</button>`) + `
         <div class="contenido">
+            ${guiaRapida(paginas)}
             <div class="kpis">
                 ${k('lila', 'paginas', 'Páginas', r.paginas, `${r.paginas_publicadas} publicadas`)}
                 ${k('cielo', 'bloques', 'Bloques', r.bloques, `${r.bloques_visibles} visibles`)}
@@ -368,6 +373,20 @@ async function vistaDashboard() {
     $$('.sube', vista).forEach(contar);
     $('#nuevaPag').onclick = () => formPagina();
     enlazarTablaPaginas();
+}
+
+// Guía de primeros pasos para quien entra por primera vez
+function guiaRapida(paginas) {
+    const inicio = paginas.find(x => x.es_inicio);
+    const pasos = [
+        ES_ADMIN && ['palette', 'Cambia colores y logo', 'Elige la paleta de tu marca y sube tu logo.', '#config', ''],
+        inicio && ['editar', 'Edita la portada', 'Cambia el título, el texto y los botones de inicio.', '#pagina/' + inicio.id, ''],
+        ['menu', 'Ordena el menú', 'Decide qué enlaces se ven arriba y en qué orden.', '#menu', ''],
+        ['externo', 'Mira cómo quedó', 'Abre tu web en otra pestaña y revisa los cambios.', SITIO, 'target="_blank" rel="noopener"'],
+    ].filter(Boolean);
+    return `<div class="caja guia-caja"><h2 class="caja-titulo">¿Por dónde empiezo? <span class="pill lima">GUÍA RÁPIDA</span></h2>
+        <div class="guia">${pasos.map(([ic, t, d, href, extra], i) => `<a class="guia-paso" href="${esc(href)}" ${extra}>
+            <span class="guia-num">${i + 1}</span><span class="guia-ic">${ico(ic)}</span><b>${t}</b><span>${d}</span></a>`).join('')}</div></div>`;
 }
 
 function muestrasColores(c) {
@@ -396,7 +415,7 @@ function tablaPaginas(paginas, compacta = false) {
             <td>${p.total_bloques}</td>
             <td>${p.es_inicio ? '<span class="pill durazno">INICIO</span>' : p.publicada ? '<span class="pill lima">PUBLICADA</span>' : '<span class="pill gris">BORRADOR</span>'}</td>
             <td><div class="btns">
-                <a class="icono-btn" href="#pagina/${p.id}" title="Editar bloques">${ico('bloques')}</a>
+                <a class="btn chico" href="#pagina/${p.id}" title="Editar los bloques de esta página">${ico('bloques')} Contenido</a>
                 ${btnIco('editar', 'data-editar', 'Editar datos')}
                 ${p.publicada ? `<a class="icono-btn" href="${SITIO}${p.es_inicio ? '' : esc(p.slug)}" target="_blank" rel="noopener" title="Ver en la web">${ico('ver')}</a>` : ''}
                 ${!compacta && !p.es_inicio ? `<button class="icono-btn rojo" type="button" data-borrar title="Eliminar">${ico('borrar')}</button>` : ''}
@@ -418,7 +437,7 @@ function enlazarTablaPaginas() {
 
 async function vistaPaginas() {
     cachePaginas = await api('/admin/paginas');
-    vista.innerHTML = cabecera('Páginas', '// cada página se arma con bloques que puedes ordenar, editar u ocultar',
+    vista.innerHTML = cabecera('Páginas', 'Cada página de tu web está hecha de bloques (secciones). Pulsa “Contenido” para editar una.',
         `<button class="btn" type="button" id="nuevaPag">${ico('mas')} Nueva página</button>`) + `
         <div class="contenido"><div class="caja"><h2 class="caja-titulo">Todas las páginas <span class="pill">${cachePaginas.length} REG.</span></h2>
         <div class="tabla-scroll">${tablaPaginas(cachePaginas)}</div></div></div>`;
@@ -429,12 +448,12 @@ async function vistaPaginas() {
 function formPagina(p = null) {
     const nueva = !p;
     drawer.abrir({
-        etiqueta: nueva ? 'POST /admin/paginas' : `PUT /admin/paginas/${p.id}`,
+        etiqueta: nueva ? 'NUEVA PÁGINA' : 'EDITAR PÁGINA',
         titulo: nueva ? 'Nueva página' : 'Editar página',
         sub: nueva ? 'Luego le agregas bloques' : `Ruta actual: /${p.es_inicio ? '' : p.slug}`,
         html: `
             <div class="fila-campo"><label class="lbl" for="pTitulo">Título</label><input class="campo" id="pTitulo" value="${esc(p?.titulo)}" placeholder="Ej. Portafolio"></div>
-            <div class="fila-campo"><label class="lbl" for="pSlug">Slug (ruta)</label><input class="campo" id="pSlug" value="${esc(p?.slug)}" placeholder="se genera del título"><div class="ayuda">minúsculas, números y guiones · ej. mis-trabajos</div></div>
+            <div class="fila-campo"><label class="lbl" for="pSlug">Dirección en la web</label><input class="campo" id="pSlug" value="${esc(p?.slug)}" placeholder="se genera del título"><div class="ayuda">Se crea sola a partir del título. Ej.: “mis-trabajos” queda como tuweb.com/mis-trabajos</div></div>
             <div class="fila-campo"><label class="lbl" for="pMeta">Descripción para Google</label><textarea class="campo" id="pMeta" maxlength="255">${esc(p?.meta_descripcion)}</textarea></div>
             <label class="switch"><div><b>Publicada</b><div class="ayuda">si la apagas, no se ve en la web</div></div><input type="checkbox" id="pPub" ${!p || p.publicada ? 'checked' : ''}><span class="tog"></span></label>
             <label class="switch"><div><b>Página de inicio</b><div class="ayuda">se muestra en la portada del sitio</div></div><input type="checkbox" id="pInicio" ${p?.es_inicio ? 'checked disabled' : ''}><span class="tog"></span></label>`,
@@ -466,7 +485,7 @@ function resumenBloque(b) {
 async function vistaPagina(id) {
     const [p] = await Promise.all([api('/admin/paginas/' + id), precargarImagenes()]);
     const bloques = p.bloques;
-    vista.innerHTML = cabecera(esc(p.titulo), `// ${bloques.length} bloques · se muestran en este orden en la web`,
+    vista.innerHTML = cabecera(esc(p.titulo), `${bloques.length} bloques · aparecen en la web en este mismo orden, de arriba hacia abajo`,
         `<a class="btn blanco" href="${SITIO}${p.es_inicio ? '' : esc(p.slug)}" target="_blank" rel="noopener">${ico('externo')} Ver página</a>
          <button class="btn" type="button" id="nuevoBloque">${ico('mas')} Agregar bloque</button>`,
         `<a href="#paginas">Páginas</a> / ${esc(p.titulo)}`) + `
@@ -474,13 +493,13 @@ async function vistaPagina(id) {
         ${bloques.length ? bloques.map((b, i) => `
             <div class="item ${b.visible ? '' : 'apagado'}" data-id="${b.id}">
                 <span class="orden">${i + 1}</span>
-                <span class="pill ${BLOQUES[b.tipo]?.color || 'gris'}">${esc(b.tipo.toUpperCase())}</span>
-                <div class="info"><b>${esc(resumenBloque(b))}</b><span>${esc(BLOQUES[b.tipo]?.nombre || b.tipo)} · ${b.visible ? 'visible' : 'oculto'}</span></div>
+                <span class="pill ${BLOQUES[b.tipo]?.color || 'gris'}">${esc((BLOQUES[b.tipo]?.nombre || b.tipo).toUpperCase())}</span>
+                <div class="info"><b>${esc(resumenBloque(b))}</b><span>${esc(BLOQUES[b.tipo]?.desc || b.tipo)} · ${b.visible ? 'visible en la web' : 'oculto'}</span></div>
                 <div class="btns">
                     <label class="mini-tog" title="Visible en la web"><input type="checkbox" data-visible ${b.visible ? 'checked' : ''}><span class="tog"></span></label>
                     ${btnIco('arriba', `data-mover="-1" ${i === 0 ? 'disabled' : ''}`, 'Subir')}
                     ${btnIco('abajo', `data-mover="1" ${i === bloques.length - 1 ? 'disabled' : ''}`, 'Bajar')}
-                    ${btnIco('editar', 'data-editar', 'Editar contenido')}
+                    <button class="btn chico" type="button" data-editar>${ico('editar')} Editar</button>
                     <button class="icono-btn rojo" type="button" data-borrar title="Eliminar">${ico('borrar')}</button>
                 </div>
             </div>`).join('') : '<div class="vacio"><b>Esta página no tiene bloques</b>Agrega el primero con “Agregar bloque”.</div>'}
@@ -513,7 +532,7 @@ async function vistaPagina(id) {
 
 function elegirTipoBloque(p) {
     drawer.abrir({
-        etiqueta: `POST /admin/paginas/${p.id}/bloques`, titulo: 'Agregar bloque', sub: 'Elige qué tipo de sección quieres agregar',
+        etiqueta: 'NUEVO BLOQUE', titulo: 'Agregar bloque', sub: 'Elige qué sección quieres agregar. Se pondrá al final de la página y luego podrás moverla.',
         html: `<div class="tipos">${Object.entries(BLOQUES).map(([k, b]) => `<button type="button" class="tipo sticker" style="background:var(--${b.color})" data-tipo="${k}"><b>${esc(b.nombre)}</b><span>${esc(b.desc)}</span></button>`).join('')}</div>`,
     });
     $$('[data-tipo]', $('#drawerCuerpo')).forEach(b => b.onclick = async () => {
@@ -526,16 +545,30 @@ function elegirTipoBloque(p) {
     });
 }
 
+// Sugerencias para los campos de enlace (páginas del sitio y secciones comunes)
+async function asegurarEnlaces() {
+    if (document.getElementById('enlacesSitio')) return;
+    let ps = cachePaginas;
+    if (!ps.length) { try { ps = await api('/admin/paginas'); } catch { ps = []; } }
+    const opciones = new Map(ps.filter(x => x.publicada).map(x => [x.es_inicio ? '/' : '/' + x.slug, 'Página: ' + x.titulo]));
+    [['/servicios#planes', 'Sección de planes'], ['#contacto', 'Bajar al formulario de contacto']].forEach(([v, t]) => opciones.has(v) || opciones.set(v, t));
+    const dl = document.createElement('datalist');
+    dl.id = 'enlacesSitio';
+    dl.innerHTML = [...opciones].map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+    document.body.append(dl);
+}
+
 function formBloque(p, b) {
+    asegurarEnlaces();
     const def = BLOQUES[b.tipo] || { nombre: b.tipo, campos: [] };
     editor.estado = structuredClone(b.contenido && !Array.isArray(b.contenido) ? b.contenido : {});
     editor.esquema = def.campos;
     let pestana = 'contenido';
 
     drawer.abrir({
-        etiqueta: `PUT /admin/bloques/${b.id}`, titulo: 'Editar bloque',
-        sub: `${p.titulo} · tipo ${b.tipo} · orden ${b.orden}`,
-        html: `<div class="tabs"><button type="button" class="on" data-p="contenido">Contenido</button><button type="button" data-p="json">JSON</button></div><div id="editorCampos"></div>`,
+        etiqueta: 'EDITAR BLOQUE', titulo: def.nombre,
+        sub: `Página ${p.titulo} · posición ${b.orden} · escribe los cambios y pulsa Guardar`,
+        html: `<div class="tabs"><button type="button" class="on" data-p="contenido">Contenido</button><button type="button" data-p="json">Avanzado (JSON)</button></div><div id="editorCampos"></div>`,
         textoGuardar: 'GUARDAR CAMBIOS →',
         alGuardar: async () => {
             if (pestana === 'json') leerJson();
@@ -554,7 +587,7 @@ function formBloque(p, b) {
         } catch { throw new Error('El JSON no es válido: revisa comas y comillas'); }
     };
     const mostrar = () => {
-        if (pestana === 'json') cont.innerHTML = `<textarea class="campo json" id="jsonBloque" spellcheck="false">${esc(JSON.stringify(editor.estado, null, 2))}</textarea><div class="ayuda">Es lo que se guarda en la columna JSON “contenido”.</div>`;
+        if (pestana === 'json') cont.innerHTML = `<textarea class="campo json" id="jsonBloque" spellcheck="false">${esc(JSON.stringify(editor.estado, null, 2))}</textarea><div class="ayuda">Solo para usuarios avanzados. Si no sabes qué es, usa la pestaña Contenido.</div>`;
         else editor.pintar(cont);
     };
     $$('.tabs button', $('#drawerCuerpo')).forEach(t => t.onclick = () => {
@@ -583,7 +616,7 @@ async function vistaMenu() {
                 ${btnIco('editar', 'data-editar', 'Editar')}
                 <button class="icono-btn rojo" type="button" data-borrar title="Eliminar">${ico('borrar')}</button>
             </div></div>`;
-    vista.innerHTML = cabecera('Menú', '// así se ve la navegación de tu web · máximo 2 niveles',
+    vista.innerHTML = cabecera('Menú', 'Son los enlaces de la parte de arriba de tu web. Puedes ordenarlos, ocultarlos y crear submenús.',
         `<button class="btn" type="button" id="nuevoItem">${ico('mas')} Nuevo ítem</button>`) + `
         <div class="contenido"><div class="lista">
         ${arbol.length ? arbol.map((it, i) => fila(it, i, arbol, false) + it.hijos.map((h, j) => fila(h, j, it.hijos, true)).join('')).join('') : '<div class="vacio"><b>El menú está vacío</b>Agrega el primer ítem.</div>'}
@@ -624,7 +657,7 @@ function formMenu(it, arbol) {
     const conPagina = nuevo ? true : !!it.pagina_id || it.sin_destino;
     const padres = arbol.filter(a => !it || a.id !== it.id);
     drawer.abrir({
-        etiqueta: nuevo ? 'POST /admin/menu' : `PUT /admin/menu/${it.id}`,
+        etiqueta: nuevo ? 'NUEVO ÍTEM' : 'EDITAR ÍTEM',
         titulo: nuevo ? 'Nuevo ítem' : 'Editar ítem', sub: 'Elige a dónde lleva este enlace',
         html: `
             <div class="fila-campo"><label class="lbl" for="mEtiqueta">Texto del enlace</label><input class="campo" id="mEtiqueta" value="${esc(it?.etiqueta)}" maxlength="60" placeholder="Ej. Portafolio"></div>
@@ -659,7 +692,7 @@ function formMenu(it, arbol) {
 // ---------- Imágenes ----------
 async function vistaMedia() {
     const medios = await api('/admin/media');
-    vista.innerHTML = cabecera('Imágenes', '// al subir una imagen se crean versiones de 480, 768 y 1280 px en WEBP') + `
+    vista.innerHTML = cabecera('Imágenes', 'Sube aquí las fotos de tu web. Después las eliges desde cada bloque con el botón “Elegir”.') + `
         <div class="contenido">
             <label class="zona-subida" id="zona">${ico('subir')}<b>Arrastra imágenes aquí o haz clic</b><span>JPG, PNG, WEBP o GIF · máximo 5 MB cada una</span>
                 <input type="file" accept="image/*" multiple hidden id="archivos"></label>
@@ -717,7 +750,7 @@ async function vistaMensajes() {
     const lista = await api('/admin/mensajes');
     const sinLeer = lista.filter(m => !m.leido).length;
     actualizarContador(sinLeer);
-    vista.innerHTML = cabecera('Mensajes', `// lo que envían desde el formulario de contacto · ${sinLeer} sin leer`) + `
+    vista.innerHTML = cabecera('Mensajes', `Lo que te escriben desde el formulario de contacto · ${sinLeer} sin leer`) + `
         <div class="contenido"><div class="lista">
         ${lista.length ? lista.map(m => `
             <div class="mensaje ${m.leido ? '' : 'nuevo'}" data-id="${m.id}">
@@ -747,6 +780,7 @@ async function vistaMensajes() {
 }
 
 // ---------- Configuración: colores y logo (solo admin) ----------
+const USOS_COLOR = { primario: 'Sombras, bordes y títulos resaltados', secundario: 'Brillos del fondo y algunas tarjetas', acento: 'Botones principales y cinta animada', fondo: 'Fondo de toda la web', texto: 'Letras y bordes de las tarjetas' };
 const COLORES_PIXELA = { primario: '#8B5CF6', secundario: '#2563EB', acento: '#C8FF3D', fondo: '#0B0B14', texto: '#F5F5FA' };
 
 async function vistaConfig() {
@@ -763,15 +797,15 @@ async function vistaConfig() {
     const selImg = (k, o) => `<div class="selector-img"><div class="miniatura" id="mini-${k}" style="${o.url ? `background-image:url('${esc(o.url)}')` : ''}">${o.url ? '' : 'SIN<br>IMAGEN'}</div>
         <button class="btn blanco chico" type="button" id="elegir-${k}">${ico('imagen')} Elegir</button></div>`;
 
-    vista.innerHTML = cabecera('Colores y logo', '// cambia la identidad de toda la web sin tocar código',
+    vista.innerHTML = cabecera('Colores y logo', 'Cambia los colores, el logo y los datos de contacto de toda tu web.',
         `<a class="btn blanco" href="${SITIO}" target="_blank" rel="noopener">${ico('externo')} Ver sitio</a><button class="btn" type="button" id="guardarConfig">GUARDAR CAMBIOS →</button>`) + `
         <div class="contenido">
             <div class="rejilla-2">
                 <div class="caja"><h2 class="caja-titulo">01 // Paleta de colores <button class="btn blanco chico" type="button" id="restaurar">Restaurar Pixela</button></h2>
                     <div class="colores-form">${Object.entries(nombres).map(([k, t]) => `
-                        <div class="color-campo"><span>${t}</span><input type="color" data-color="${k}" value="${esc(colores[k])}" aria-label="${t}">
+                        <div class="color-campo"><span>${t}<small>${USOS_COLOR[k]}</small></span><input type="color" data-color="${k}" value="${esc(colores[k])}" aria-label="${t}">
                         <input type="text" data-hex="${k}" value="${esc(colores[k])}" maxlength="7" aria-label="${t} en HEX"></div>`).join('')}</div>
-                    <p class="mono" style="font-size:12px;color:var(--tn);margin:14px 0 0">Se guardan en HEX en site_config y la web los usa como variables CSS (--color-primario, etc.).</p>
+                    <p class="ayuda-color">💡 Mira la vista previa mientras eliges. El <b>fondo</b> y el <b>texto</b> deben contrastar (uno claro y otro oscuro). Si no te gusta, pulsa “Restaurar Pixela”.</p>
                 </div>
                 <div class="caja violeta"><h2 class="caja-titulo">02 // Vista previa <span class="vivo">EN VIVO</span></h2><div id="previaCont"></div></div>
             </div>
@@ -783,7 +817,7 @@ async function vistaConfig() {
                     </div>
                     <div class="dos-col">
                         <div class="fila-campo"><label class="lbl">Logo</label>${selImg('logo', logo)}</div>
-                        <div class="fila-campo"><label class="lbl">Favicon</label>${selImg('favicon', favicon)}</div>
+                        <div class="fila-campo"><label class="lbl">Ícono de la pestaña (favicon)</label>${selImg('favicon', favicon)}</div>
                     </div>
                 </div>
                 <div class="caja"><h2 class="caja-titulo">04 // Contacto y redes</h2>
@@ -848,7 +882,7 @@ async function router() {
     const fn = VISTAS[nombre] || vistaDashboard;
     const activa = nombre === 'pagina' ? 'paginas' : (VISTAS[nombre] ? nombre : 'dashboard');
     $$('#nav a[data-vista]').forEach(a => a.classList.toggle('activo', a.dataset.vista === activa));
-    $('#cinta').textContent = Array(14).fill(`${CINTA[nombre] || 'DASHBOARD'} ✦ PIXELA CMS ✦ JSON ✦ JWT ✦ `).join('');
+    $('#cinta').textContent = Array(14).fill(`${CINTA[nombre] || 'DASHBOARD'} ✦ PIXELA CMS ✦ TU WEB, TU CONTROL ✦ `).join('');
     cerrarMenuMovil();
     cargando();
     try { await fn(param); } catch (e) { if (e.message !== 'Sesión expirada') error(e); }

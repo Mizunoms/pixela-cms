@@ -88,7 +88,7 @@ El instalador revisa que todo esté bien. Pulsa **Instalar ahora**. Crea la base
 
 En la web pública pulsa **Ingresar** (arriba a la derecha; en el celular está dentro del menú ☰) o el enlace **Acceso al panel** del pie de página. Escribe el email y la contraseña de prueba.
 
-La sesión dura **8 horas**. Abajo del menú lateral ves cuánto tiempo te queda. Al terminar, pulsa **Cerrar sesión**.
+Al entrar verás la **guía rápida "¿Por dónde empiezo?"** con 4 pasos y un botón para ir a cada uno. La sesión dura **8 horas**. Abajo del menú lateral ves cuánto tiempo te queda. Al terminar, pulsa **Cerrar sesión**.
 
 ### Las secciones del panel
 
@@ -103,7 +103,7 @@ La sesión dura **8 horas**. Abajo del menú lateral ves cuánto tiempo te queda
 
 ### 🎨 Colores y logo
 
-Cada uno de los 5 colores tiene un selector y un campo HEX (por ejemplo `#8B5CF6`). A la derecha hay una **vista previa en vivo**, y con **Guardar cambios** se aplica en toda la web.
+Cada uno de los 5 colores tiene un selector, un campo HEX (por ejemplo `#8B5CF6`) y debajo del nombre dice en qué parte de la web se usa. A la derecha hay una **vista previa en vivo**, y con **Guardar cambios** se aplica en toda la web.
 
 | Color | Valor original | Dónde se usa en la web |
 |---|---|---|
@@ -123,9 +123,9 @@ En la misma sección también se cambian el **nombre del sitio**, el **eslogan**
 
 Cada página de la web está formada por **bloques** que se apilan en orden (portada, servicios, precios, etc.).
 
-1. En **Páginas y bloques** pulsa **Nueva página** o entra a una página existente.
+1. En **Páginas y bloques** pulsa **Nueva página**, o el botón **Contenido** de una página existente.
 2. Dentro de la página pulsa **Agregar bloque** y elige el tipo.
-3. Completa el formulario que aparece en el panel lateral y pulsa **Guardar**.
+3. Completa el formulario que aparece en el panel lateral y pulsa **Guardar cambios**. En los campos de enlace aparece una lista con las páginas del sitio para elegir.
 
 Botones de cada bloque:
 
@@ -133,14 +133,14 @@ Botones de cada bloque:
 |---|---|
 | Interruptor | Muestra u oculta el bloque en la web, sin borrarlo. |
 | ↑ / ↓ | Sube o baja el bloque en la página. |
-| ✏ Editar | Abre el formulario del bloque. Tiene una pestaña **JSON** para usuarios avanzados. |
+| ✏ Editar | Abre el formulario del bloque. La pestaña **Avanzado (JSON)** es solo para usuarios avanzados. |
 | 🗑 Eliminar | Borra el bloque (pide confirmación). |
 
 Tipos de bloque disponibles:
 
 | Bloque | Qué muestra |
 |---|---|
-| **Hero** | Portada con título grande, texto, botones e imagen. |
+| **Portada** | Lo primero que se ve: título grande, texto, botones e imagen. |
 | **Servicios** | Tarjetas con icono, título y descripción. |
 | **Portafolio** | Trabajos realizados con imagen. |
 | **Plantillas** | Catálogo con precio, imagen y botones "Ver demo" y "La quiero". |
