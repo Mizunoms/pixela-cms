@@ -183,6 +183,55 @@ INSERT INTO menu_items (id, parent_id, pagina_id, etiqueta, url_externa, orden) 
 (5, 2,    NULL, 'Qué hacemos',      '/servicios#servicios', 1),
 (6, 2,    NULL, 'Planes y precios', '/servicios#planes',    2);
 
+-- Imágenes de ejemplo (capturas de las plantillas demo, ya en versiones 480/768/1280 WEBP)
+INSERT INTO media (id, subido_por, nombre_original, alt_text, mime, ancho_original, alto_original) VALUES
+(1, 1, 'barberia.png', 'Plantilla Corte Fino (barbería)', 'image/png', 1280, 960),
+(2, 1, 'restaurante.png', 'Plantilla Sazón Criolla (restaurante)', 'image/png', 1280, 960),
+(3, 1, 'hogar.png', 'Plantilla Casa en Orden (servicios del hogar)', 'image/png', 1280, 960),
+(4, 1, 'consultorio.png', 'Plantilla Vida Sana (consultorio)', 'image/png', 1280, 960),
+(5, 1, 'tienda.png', 'Plantilla Moda Urbana (tienda de ropa)', 'image/png', 1280, 960),
+(6, 1, 'gimnasio.png', 'Plantilla Power Gym (gimnasio)', 'image/png', 1280, 960),
+(7, 1, 'veterinaria.png', 'Plantilla Patitas Felices (veterinaria)', 'image/png', 1280, 960),
+(8, 1, 'academia.png', 'Plantilla Aula Activa (academia)', 'image/png', 1280, 960),
+(9, 1, 'proyecto-barberia.png', 'Web de Barbería El Corte', 'image/png', 1280, 800),
+(10, 1, 'proyecto-polleria.png', 'Carta digital de Pollería Don Lucho', 'image/png', 1280, 800),
+(11, 1, 'proyecto-cetpro.png', 'Web institucional de CETPRO Mangomarca', 'image/png', 1280, 800);
+
+INSERT INTO media_variantes (media_id, ancho, ruta, peso_kb) VALUES
+(1, 480, 'public/assets/img/demo/barberia-480.webp', 11),
+(1, 768, 'public/assets/img/demo/barberia-768.webp', 18),
+(1, 1280, 'public/assets/img/demo/barberia-1280.webp', 32),
+(2, 480, 'public/assets/img/demo/restaurante-480.webp', 11),
+(2, 768, 'public/assets/img/demo/restaurante-768.webp', 22),
+(2, 1280, 'public/assets/img/demo/restaurante-1280.webp', 40),
+(3, 480, 'public/assets/img/demo/hogar-480.webp', 13),
+(3, 768, 'public/assets/img/demo/hogar-768.webp', 26),
+(3, 1280, 'public/assets/img/demo/hogar-1280.webp', 46),
+(4, 480, 'public/assets/img/demo/consultorio-480.webp', 13),
+(4, 768, 'public/assets/img/demo/consultorio-768.webp', 24),
+(4, 1280, 'public/assets/img/demo/consultorio-1280.webp', 43),
+(5, 480, 'public/assets/img/demo/tienda-480.webp', 12),
+(5, 768, 'public/assets/img/demo/tienda-768.webp', 20),
+(5, 1280, 'public/assets/img/demo/tienda-1280.webp', 34),
+(6, 480, 'public/assets/img/demo/gimnasio-480.webp', 11),
+(6, 768, 'public/assets/img/demo/gimnasio-768.webp', 19),
+(6, 1280, 'public/assets/img/demo/gimnasio-1280.webp', 32),
+(7, 480, 'public/assets/img/demo/veterinaria-480.webp', 12),
+(7, 768, 'public/assets/img/demo/veterinaria-768.webp', 24),
+(7, 1280, 'public/assets/img/demo/veterinaria-1280.webp', 42),
+(8, 480, 'public/assets/img/demo/academia-480.webp', 15),
+(8, 768, 'public/assets/img/demo/academia-768.webp', 28),
+(8, 1280, 'public/assets/img/demo/academia-1280.webp', 48),
+(9, 480, 'public/assets/img/demo/proyecto-barberia-480.webp', 9),
+(9, 768, 'public/assets/img/demo/proyecto-barberia-768.webp', 16),
+(9, 1280, 'public/assets/img/demo/proyecto-barberia-1280.webp', 28),
+(10, 480, 'public/assets/img/demo/proyecto-polleria-480.webp', 10),
+(10, 768, 'public/assets/img/demo/proyecto-polleria-768.webp', 16),
+(10, 1280, 'public/assets/img/demo/proyecto-polleria-1280.webp', 28),
+(11, 480, 'public/assets/img/demo/proyecto-cetpro-480.webp', 12),
+(11, 768, 'public/assets/img/demo/proyecto-cetpro-768.webp', 23),
+(11, 1280, 'public/assets/img/demo/proyecto-cetpro-1280.webp', 41);
+
 -- Bloques de cada página (el contenido de cada bloque va en JSON)
 INSERT INTO page_components (pagina_id, tipo, orden, contenido) VALUES
 (1, 'hero', 1, '{
@@ -238,20 +287,20 @@ INSERT INTO page_components (pagina_id, tipo, orden, contenido) VALUES
   "items": [
     {
       "titulo": "Barbería El Corte",
+      "imagen_id": 9,
       "categoria": "Web + reservas",
-      "imagen_id": null,
       "url": ""
     },
     {
       "titulo": "Pollería Don Lucho",
+      "imagen_id": 10,
       "categoria": "Carta digital QR",
-      "imagen_id": null,
       "url": ""
     },
     {
       "titulo": "CETPRO Mangomarca",
+      "imagen_id": 11,
       "categoria": "Web institucional",
-      "imagen_id": null,
       "url": ""
     }
   ]
@@ -473,25 +522,57 @@ INSERT INTO page_components (pagina_id, tipo, orden, contenido) VALUES
       "nombre": "Corte Fino",
       "rubro": "Barbería",
       "precio": 350,
-      "imagen_id": null
+      "imagen_id": 1,
+      "demo_url": "/public/demos/barberia.html"
     },
     {
       "nombre": "Sazón Criolla",
       "rubro": "Restaurante",
       "precio": 400,
-      "imagen_id": null
+      "imagen_id": 2,
+      "demo_url": "/public/demos/restaurante.html"
     },
     {
       "nombre": "Casa en Orden",
       "rubro": "Servicios del hogar",
       "precio": 350,
-      "imagen_id": null
+      "imagen_id": 3,
+      "demo_url": "/public/demos/hogar.html"
     },
     {
       "nombre": "Vida Sana",
       "rubro": "Consultorio",
       "precio": 420,
-      "imagen_id": null
+      "imagen_id": 4,
+      "demo_url": "/public/demos/consultorio.html"
+    },
+    {
+      "nombre": "Moda Urbana",
+      "rubro": "Tienda de ropa",
+      "precio": 450,
+      "imagen_id": 5,
+      "demo_url": "/public/demos/tienda.html"
+    },
+    {
+      "nombre": "Power Gym",
+      "rubro": "Gimnasio",
+      "precio": 400,
+      "imagen_id": 6,
+      "demo_url": "/public/demos/gimnasio.html"
+    },
+    {
+      "nombre": "Patitas Felices",
+      "rubro": "Veterinaria",
+      "precio": 380,
+      "imagen_id": 7,
+      "demo_url": "/public/demos/veterinaria.html"
+    },
+    {
+      "nombre": "Aula Activa",
+      "rubro": "Academia",
+      "precio": 420,
+      "imagen_id": 8,
+      "demo_url": "/public/demos/academia.html"
     }
   ]
 }'),

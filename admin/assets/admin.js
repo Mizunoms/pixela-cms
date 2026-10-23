@@ -177,7 +177,7 @@ const BLOQUES = {
             T('titulo', 'Nombre del proyecto'), T('categoria', 'Categoría'), { nombre: 'imagen_id', etiqueta: 'Imagen', tipo: 'imagen' }, T('url', 'Enlace (opcional)')] }] },
     plantillas: { nombre: 'Plantillas', desc: 'Catálogo de plantillas con precio', color: 'durazno', campos: [...ENCABEZADO,
         { nombre: 'items', etiqueta: 'Plantillas', tipo: 'lista', item: 'Plantilla', campos: [
-            T('nombre', 'Nombre'), T('rubro', 'Rubro'), { nombre: 'precio', etiqueta: 'Precio (S/)', tipo: 'numero' }, { nombre: 'imagen_id', etiqueta: 'Imagen', tipo: 'imagen' }] }] },
+            T('nombre', 'Nombre'), T('rubro', 'Rubro'), { nombre: 'precio', etiqueta: 'Precio (S/)', tipo: 'numero' }, { nombre: 'imagen_id', etiqueta: 'Imagen', tipo: 'imagen' }, T('demo_url', 'Enlace de la demo (opcional)')] }] },
     planes: { nombre: 'Planes / Precios', desc: 'Paquetes con precio y lo que incluyen', color: 'lima', campos: [...ENCABEZADO,
         { nombre: 'items', etiqueta: 'Planes', tipo: 'lista', item: 'Plan', campos: [
             T('nombre', 'Nombre'), { nombre: 'precio', etiqueta: 'Precio (S/)', tipo: 'numero' }, { nombre: 'destacado', etiqueta: 'Plan destacado', tipo: 'booleano' },

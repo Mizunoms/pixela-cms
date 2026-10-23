@@ -150,7 +150,9 @@ class MediaService
         }
         // las variantes en BD se borran en cascada; aquí se borran los archivos
         foreach ($rutas as $ruta) {
-            @unlink(Url::raiz() . '/' . $ruta);
+            if (str_starts_with($ruta, 'uploads/')) {   // las imágenes de ejemplo (public/assets) se quedan en el repo
+                @unlink(Url::raiz() . '/' . $ruta);
+            }
         }
     }
 

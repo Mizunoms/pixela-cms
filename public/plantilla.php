@@ -73,6 +73,7 @@ $activo = function (array $item) use ($rutaActual): bool {
             </li>
         <?php endforeach; ?>
         </ul>
+        <a class="acceso" href="<?= e($BASE) ?>/admin/" title="Iniciar sesión en el panel"><?= icono('usuario') ?><span>Ingresar</span></a>
         <?php if ($wa): ?><a class="btn" href="<?= e($wa) ?>" target="_blank" rel="noopener">Cotiza gratis <?= icono('flecha') ?></a><?php endif; ?>
     </nav>
 </header>
@@ -133,7 +134,7 @@ endif; ?>
             </ul>
         </div>
     </div>
-    <div class="contenedor pie-final"><span>© <?= date('Y') ?> <?= e($nombre) ?></span><span class="mono">Hecho con Pixela CMS ✦</span></div>
+    <div class="contenedor pie-final"><span>© <?= date('Y') ?> <?= e($nombre) ?></span><span class="mono"><a href="<?= e($BASE) ?>/admin/">Acceso al panel</a> · Hecho con Pixela CMS ✦</span></div>
 </footer>
 
 <?php if ($wa): ?>

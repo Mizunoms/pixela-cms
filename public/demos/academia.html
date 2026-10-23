@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aula Activa · Academia — Demo Pixela</title>
+<style>
+:root { --fondo:#F6F4FF; --tinta:#1E1650; --acento:#5B3DF5; --acento2:#FFB020; --suave:#E6E0FF; --fuente:'Segoe UI', 'Helvetica Neue', Inter, Arial, sans-serif; }
+* { box-sizing: border-box; }
+html, body { margin: 0; overflow-x: hidden; overflow-x: clip; }
+body { background: var(--fondo); color: var(--tinta); font: 16px/1.55 'Segoe UI', Inter, Arial, sans-serif; }
+a { color: inherit; }
+svg { width: 22px; height: 22px; flex: none; }
+h1, h2, h3, .logo { font-family: var(--fuente); }
+.envoltura { width: min(1160px, 100% - 40px); margin: 0 auto; }
+.demo-barra { position: sticky; top: 0; z-index: 9; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 9px 20px; background: #0B0B14; color: #F5F5FA; font-size: 13px; border-bottom: 3px solid #C8FF3D; }
+.demo-barra .acciones { display: flex; gap: 10px; }
+.demo-barra a { text-decoration: none; padding: 5px 12px; border-radius: 8px; border: 1px solid #3A3550; }
+.demo-barra a.quiero { background: #C8FF3D; color: #0B0B14; font-weight: 700; border-color: #C8FF3D; }
+.cab { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 0; }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 22px; text-decoration: none; letter-spacing: -.01em; }
+.logo span.marca { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: var(--acento); color: var(--fondo); }
+.cab nav { display: flex; gap: 26px; font-size: 15px; }
+.cab nav a { text-decoration: none; opacity: .8; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px; background: var(--acento); color: var(--fondo);
+  font-weight: 700; text-decoration: none; border: 0; box-shadow: 0 10px 30px -10px var(--acento); }
+.btn.sec { background: transparent; color: var(--tinta); box-shadow: none; border: 2px solid currentColor; }
+.hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center; padding: 40px 0 70px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; background: var(--suave); font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em; color: var(--acento); }
+.chip svg { width: 16px; height: 16px; }
+h1 { font-size: clamp(40px, 5.6vw, 72px); line-height: 1.02; margin: 18px 0; letter-spacing: -.02em; }
+h1 em { font-style: normal; color: var(--acento); }
+.hero p { font-size: 19px; opacity: .8; max-width: 520px; margin: 0 0 30px; }
+.botones { display: flex; gap: 14px; flex-wrap: wrap; }
+.datos { display: flex; gap: 28px; margin-top: 34px; flex-wrap: wrap; }
+.datos div { display: flex; gap: 10px; align-items: center; font-size: 14px; opacity: .85; }
+.datos svg { color: var(--acento); }
+.escena { position: relative; aspect-ratio: 1 / .92; }
+.blob { position: absolute; border-radius: 46% 54% 60% 40% / 50% 42% 58% 50%; filter: blur(.3px); }
+.b1 { inset: 6% 4% 10% 10%; background: var(--acento2); opacity: .9; transform: rotate(-8deg); }
+.b2 { width: 34%; height: 34%; right: -2%; top: -2%; background: var(--acento); opacity: .85; border-radius: 50%; }
+.foto-principal { position: absolute; inset: 12% 10% 14% 16%; border-radius: 28px; overflow: hidden; display: grid; place-items: center;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--acento) 45%, var(--fondo)), var(--suave) 55%, color-mix(in srgb, var(--acento2) 40%, var(--fondo)));
+  box-shadow: 0 30px 60px -25px rgba(0,0,0,.45); }
+.foto-principal .gigante { width: 48%; height: 48%; color: var(--tinta); opacity: .9; }
+.brillo { position: absolute; inset: 0; background: linear-gradient(130deg, transparent 40%, rgba(255,255,255,.25) 50%, transparent 60%); }
+.ficha { position: absolute; display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 16px; background: var(--fondo); color: var(--tinta);
+  box-shadow: 0 18px 40px -16px rgba(0,0,0,.45); font-size: 14px; border: 1px solid color-mix(in srgb, var(--tinta) 12%, transparent); }
+.ficha svg { color: var(--acento); }
+.ficha small { opacity: .65; }
+.f1 { left: 0; bottom: 18%; } .f2 { right: 2%; bottom: 4%; }
+.seccion { padding: 70px 0; }
+.seccion h2 { font-size: clamp(30px, 3.6vw, 46px); margin: 10px 0 30px; letter-spacing: -.01em; }
+.lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 40px; }
+.lista li { display: flex; align-items: baseline; gap: 12px; padding: 18px 22px; border-radius: 18px; background: var(--suave); font-size: 18px; }
+.lista li i { flex: 1; border-bottom: 2px dotted color-mix(in srgb, var(--tinta) 35%, transparent); }
+.lista li b { color: var(--acento); }
+.galeria { display: grid; grid-template-columns: 2fr 1fr 1fr; grid-template-rows: 220px 220px; gap: 16px; }
+.galeria figure { margin: 0; position: relative; border-radius: 22px; overflow: hidden; }
+.galeria .g0 { grid-row: span 2; } .galeria .g3 { grid-column: span 2; }
+.foto { position: absolute; inset: 0; display: grid; place-items: center; }
+.g0 .foto { background: linear-gradient(150deg, var(--acento), color-mix(in srgb, var(--acento) 40%, #000)); }
+.g1 .foto { background: linear-gradient(150deg, var(--acento2), color-mix(in srgb, var(--acento2) 50%, #000)); }
+.g2 .foto { background: linear-gradient(150deg, var(--suave), color-mix(in srgb, var(--acento) 30%, var(--suave))); }
+.g3 .foto { background: linear-gradient(120deg, color-mix(in srgb, var(--tinta) 85%, var(--acento)), color-mix(in srgb, var(--acento2) 60%, var(--tinta))); }
+.foto svg { width: 64px; height: 64px; color: rgba(255,255,255,.9); }
+.g2 .foto svg { color: var(--tinta); }
+.g0 .foto svg { width: 110px; height: 110px; }
+.galeria figcaption { position: absolute; left: 14px; bottom: 14px; padding: 6px 12px; border-radius: 10px; background: rgba(0,0,0,.55); color: #fff; font-size: 14px; font-weight: 600; }
+.resena { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; padding: 40px; border-radius: 28px; background: var(--suave); }
+.resena .avatar { width: 86px; height: 86px; border-radius: 50%; display: grid; place-items: center; background: var(--acento); color: var(--fondo); font: 800 30px var(--fuente); }
+.resena blockquote { margin: 0; font: 600 clamp(20px, 2.4vw, 28px)/1.35 var(--fuente); }
+.resena cite { display: block; margin-top: 12px; font-style: normal; opacity: .7; }
+.estrellas { display: flex; gap: 2px; color: var(--acento2); margin-bottom: 8px; }
+.estrellas svg { width: 18px; height: 18px; fill: currentColor; }
+.cta { margin: 0 0 70px; padding: 48px; border-radius: 30px; background: var(--acento); color: var(--fondo); display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+.cta h2 { margin: 0 0 6px; font-size: clamp(28px, 3vw, 40px); }
+.cta .btn { background: var(--fondo); color: var(--tinta); box-shadow: none; }
+.pie { padding: 28px 0 40px; border-top: 1px solid color-mix(in srgb, var(--tinta) 15%, transparent); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 14px; opacity: .75; }
+/* variante oscura: hero centrado y más dramático */
+.oscuro .hero { grid-template-columns: 1fr; text-align: center; justify-items: center; padding-top: 30px; }
+.oscuro .hero p { margin-inline: auto; }
+.oscuro .botones, .oscuro .datos { justify-content: center; }
+.oscuro h1 { text-transform: uppercase; font-size: clamp(44px, 7vw, 96px); }
+.oscuro .escena { width: min(900px, 100%); aspect-ratio: 16 / 7; }
+.oscuro .foto-principal { inset: 8% 6% 6% 6%; }
+.oscuro .foto-principal .gigante { width: 26%; height: 60%; }
+.oscuro .b1 { inset: 0 12% 0 12%; border-radius: 40px; transform: rotate(-2deg); }
+.oscuro .hero > div:first-child { order: 0; }
+/* variante editorial: imagen a la izquierda, líneas finas */
+.editorial .hero { grid-template-columns: .95fr 1.05fr; }
+.editorial .hero .escena { order: -1; }
+.editorial h1 { font-weight: 700; }
+.editorial .lista li { background: transparent; border-bottom: 1px solid color-mix(in srgb, var(--tinta) 18%, transparent); border-radius: 0; padding: 18px 4px; }
+.editorial .chip { background: transparent; border: 1px solid var(--acento); }
+@media (max-width: 860px) {
+  .cab nav { display: none; }
+  .hero, .editorial .hero { grid-template-columns: 1fr; gap: 30px; padding-top: 10px; }
+  .editorial .hero .escena { order: 0; }
+  .lista { grid-template-columns: 1fr; }
+  .galeria { grid-template-columns: 1fr 1fr; grid-template-rows: 200px 160px 160px; }
+  .galeria .g0 { grid-row: auto; grid-column: span 2; }
+  .resena { grid-template-columns: 1fr; padding: 28px; }
+  .cta { padding: 32px; }
+  .cab .btn { display: none; }
+  .oscuro .escena { aspect-ratio: 4 / 3; }
+}
+.captura .demo-barra { display: none; }
+</style>
+</head>
+<body class="editorial">
+<div class="demo-barra" id="demoBarra"><span><b>Demo de plantilla</b> · Aula Activa — hecha con Pixela CMS</span>
+<span class="acciones"><a href="../../plantillas">← Volver a plantillas</a><a class="quiero" href="../../contacto">La quiero</a></span></div>
+<div class="envoltura">
+  <header class="cab">
+    <a class="logo" href="#"><span class="marca"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>Aula Activa</a>
+    <nav><a href="#lista">Cursos</a><a href="#galeria">Galería</a><a href="#opiniones">Opiniones</a><a href="#contacto">Contacto</a></nav>
+    <a class="btn" href="#contacto">Matricularme</a>
+  </header>
+  <section class="hero">
+    <div>
+      <span class="chip"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg> Academia</span>
+      <h1>Aprende con clases que sí se entienden</h1>
+      <p>Preparación preuniversitaria, inglés y computación. Grupos reducidos y clases grabadas.</p>
+      <div class="botones"><a class="btn" href="#contacto">Matricularme <svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a><a class="btn sec" href="#lista">Cursos</a></div>
+      <div class="datos"><div><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Lun a Sáb · 8:00 – 21:00</div><div><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Av. Túpac Amaru 1500, Comas</div></div>
+    </div>
+    <div class="escena">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="foto-principal"><svg class="gigante" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg><span class="brillo"></span></div>
+  <div class="ficha f1"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg><b>4.9</b><small>+320 reseñas</small></div>
+  <div class="ficha f2"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Preuniversitario</span><b>S/ 280 / mes</b></div>
+</div>
+  </section>
+</div>
+<section class="seccion" id="lista"><div class="envoltura">
+  <span class="chip"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Cursos</span>
+  <h2>Precios claros, sin sorpresas</h2>
+  <ul class="lista"><li><span>Preuniversitario</span><i></i><b>S/ 280 / mes</b></li><li><span>Inglés intermedio</span><i></i><b>S/ 180 / mes</b></li><li><span>Office y computación</span><i></i><b>S/ 150</b></li><li><span>Clase de prueba</span><i></i><b>gratis</b></li></ul>
+</div></section>
+<section class="seccion" id="galeria"><div class="envoltura">
+  <span class="chip"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"/></svg> Galería</span>
+  <h2>Así se vive Aula Activa</h2>
+  <div class="galeria"><figure class="g0"><div class="foto"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></div><figcaption>Grupos reducidos</figcaption></figure><figure class="g1"><div class="foto"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></div><figcaption>Docentes expertos</figcaption></figure><figure class="g2"><div class="foto"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div><figcaption>Clases grabadas</figcaption></figure><figure class="g3"><div class="foto"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div><figcaption>Simulacros</figcaption></figure></div>
+</div></section>
+<section class="seccion" id="opiniones"><div class="envoltura">
+  <div class="resena"><div class="avatar">K</div>
+    <div><div class="estrellas"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></div><blockquote>“Ingresé a la universidad en mi primer intento gracias a los simulacros.”</blockquote><cite>— Kevin H.</cite></div></div>
+</div></section>
+<div class="envoltura" id="contacto">
+  <div class="cta"><div><h2>¿Hablamos?</h2><div><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></svg> Escríbenos por WhatsApp y te respondemos al toque.</div></div><a class="btn" href="#">Matricularme <svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></div>
+  <footer class="pie"><span>© 2026 Aula Activa · Av. Túpac Amaru 1500, Comas</span><span>Plantilla creada por Pixela</span></footer>
+</div>
+<script>if (location.hash === '#captura') document.body.classList.add('captura');</script>
+</body>
+</html>

@@ -158,6 +158,18 @@ a { color: inherit; }
 .plantilla-info { padding: 14px 16px 18px; }
 .plantilla-info h3 { margin: 8px 0 12px; font-size: 20px; }
 .precio-fila { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.plantilla-info { display: flex; flex-direction: column; flex: 1; }
+.plantilla-info .pill { align-self: flex-start; }
+.plantilla-info .precio { display: block; margin-bottom: 12px; }
+.plantilla-botones { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+.plantilla-botones .btn { flex: 1; justify-content: center; }
+.btn.sec { background: #fff; color: var(--tinta); }
+.btn.chico svg { width: 15px; height: 15px; }
+.acceso { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 2px solid var(--linea); border-radius: 12px; color: var(--color-texto);
+    text-decoration: none; font-weight: 600; font-size: 15px; transition: border-color .15s, background .15s; }
+.acceso:hover { border-color: var(--color-acento); background: var(--superficie); }
+.acceso svg { width: 18px; height: 18px; }
+.pie-final a { color: inherit; }
 .precio { font-size: 22px; }
 
 /* PLANES */

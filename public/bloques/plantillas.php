@@ -16,8 +16,9 @@ $items = $c['items'] ?? [];
             <div class="plantilla-info">
                 <?php if (!empty($p['rubro'])): ?><span class="pill"><?= e($p['rubro']) ?></span><?php endif; ?>
                 <h3><?= e($p['nombre'] ?? '') ?></h3>
-                <div class="precio-fila">
-                    <b class="precio">S/ <?= e(number_format((float) ($p['precio'] ?? 0), 0)) ?></b>
+                <b class="precio">S/ <?= e(number_format((float) ($p['precio'] ?? 0), 0)) ?></b>
+                <div class="plantilla-botones">
+                    <?php if (!empty($p['demo_url'])): ?><a class="btn chico sec" href="<?= e(enlace($p['demo_url'])) ?>" target="_blank" rel="noopener"><?= icono('ojo') ?> Ver demo</a><?php endif; ?>
                     <a class="btn chico" href="<?= e($pedido) ?>" target="_blank" rel="noopener">La quiero</a>
                 </div>
             </div>
