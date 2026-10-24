@@ -17,11 +17,14 @@ $aviso = isset($_GET['expirada']) ? 'Tu sesión expiró. Vuelve a ingresar.' : (
 <link rel="icon" type="image/png" href="<?= e($BASE) ?>/public/assets/img/pixela-logo-128.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Framework: Bootstrap 5.3 -->
+<link rel="stylesheet" href="<?= e($BASE) ?>/public/assets/lib/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/admin.css">
 </head>
 <body>
-<main class="login">
-    <section class="login-izq">
+<main class="login container-fluid p-0">
+  <div class="row g-0 min-vh-100">
+    <section class="col-12 col-lg-6 login-izq">
         <div class="estrellas" style="position:absolute;opacity:.55"></div>
         <div class="marca"><img src="<?= e($BASE) ?>/public/assets/img/pixela-logo-128.png" alt="Pixela">PIXELA <span class="acento">CMS</span></div>
         <div class="sello">✦ PANEL<br>ADMIN<br>v1.0 ✦</div>
@@ -34,7 +37,7 @@ $aviso = isset($_GET['expirada']) ? 'Tu sesión expiró. Vuelve a ingresar.' : (
         <div class="login-pie">Pixela CMS · PHP + MySQL · Proyecto final</div>
     </section>
 
-    <section class="login-der">
+    <section class="col-12 col-lg-6 login-der">
         <form class="form-login" id="formLogin" novalidate>
             <span class="pill lima">● ACCESO SEGURO</span>
             <h2>Iniciar sesión</h2>
@@ -44,12 +47,12 @@ $aviso = isset($_GET['expirada']) ? 'Tu sesión expiró. Vuelve a ingresar.' : (
 
             <div class="fila-campo">
                 <label class="lbl" for="email">Email</label>
-                <input class="campo" id="email" name="email" type="email" autocomplete="username" placeholder="admin@pixela.pe" required>
+                <input class="form-control campo" id="email" name="email" type="email" autocomplete="username" placeholder="admin@pixela.pe" required>
             </div>
             <div class="fila-campo">
                 <label class="lbl" for="password">Contraseña</label>
                 <div class="con-boton">
-                    <input class="campo" id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
+                    <input class="form-control campo" id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required>
                     <button type="button" class="ver-clave" id="verClave">VER</button>
                 </div>
             </div>
@@ -57,6 +60,7 @@ $aviso = isset($_GET['expirada']) ? 'Tu sesión expiró. Vuelve a ingresar.' : (
             <div class="nota">La sesión dura <?= (int) env('JWT_EXPIRA_HORAS', 8) ?> horas · token en cookie httpOnly</div>
         </form>
     </section>
+  </div>
 </main>
 
 <script>

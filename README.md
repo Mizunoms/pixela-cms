@@ -211,6 +211,21 @@ La página **Plantillas** trae 8 plantillas por rubro, cada una con una **demo f
 
 ## Stack
 
+**Framework de frontend:** Bootstrap 5.3, incluido en `public/assets/lib/bootstrap/` (funciona sin internet). Se usa en la web pública y en el panel:
+
+| Componente de Bootstrap | Dónde se usa |
+|---|---|
+| Grilla (`container`, `row`, `col-*`, `row-cols-*`, `g-*`) | Todas las secciones de la web, el dashboard, la configuración y el login |
+| Navbar + Collapse + Dropdown | Menú de la web con submenús y botón ☰ en celular |
+| Accordion | Preguntas frecuentes |
+| Formularios (`form-control`, `form-select`, `form-label`) | Formulario de contacto y formularios del panel |
+| Offcanvas | Menú lateral del panel en celular y panel lateral de edición |
+| Modal | Selector de imágenes |
+| Toast | Avisos del panel (guardado, errores) |
+| Table + `table-responsive` | Tablas del panel con scroll interno |
+| Utilidades (`d-flex`, `gap-*`, `order-*`, `h-100`…) | Alineaciones y orden en celular |
+
+
 La guía marca las tecnologías como opcionales. Se usa PHP + MySQL, cumpliendo los mismos requisitos:
 
 | Requisito de la guía | Implementación en este proyecto |
@@ -223,7 +238,7 @@ La guía marca las tecnologías como opcionales. Se usa PHP + MySQL, cumpliendo 
 | `sharp` para imágenes | Librería GD de PHP (versiones 480 / 768 / 1280 px en WEBP) |
 | Componentes de servidor (Next.js) | La web pública se arma en el servidor con PHP en cada visita (`index.php` + `public/bloques/`) |
 | Componentes de cliente (Next.js) | El panel consume la API con `fetch` y actualiza solo la sección que cambia, sin recargar la página |
-| Tailwind con breakpoints | CSS propio *mobile-first* con breakpoints 640 / 768 / 1024 px (equivalentes a `sm` / `md` / `lg`) |
+| Tailwind (framework CSS) con breakpoints | **Bootstrap 5.3** (framework CSS/JS) con sus breakpoints `sm` / `md` / `lg` / `xl`, más una hoja de estilos propia con el diseño de Pixela |
 
 ## Estructura
 
@@ -234,7 +249,7 @@ pixela-cms/
 │   ├── plantilla.php   cabecera, menú, pie y colores del panel
 │   ├── bloques/        un archivo por tipo de bloque (hero, servicios, planes...)
 │   ├── demos/          demos de las plantillas por rubro
-│   └── assets/         CSS, JS e imágenes de la marca y de ejemplo
+│   └── assets/         CSS, JS, imágenes y lib/bootstrap (framework)
 ├── admin/           panel de control
 │   ├── login.php       inicio de sesión (pantalla dividida)
 │   ├── index.php       panel protegido en el servidor (valida el JWT)

@@ -31,6 +31,8 @@ $svg = fn(string $k) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 <link rel="icon" type="image/png" href="<?= e($BASE) ?>/public/assets/img/pixela-logo-128.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<!-- Framework: Bootstrap 5.3 -->
+<link rel="stylesheet" href="<?= e($BASE) ?>/public/assets/lib/bootstrap/css/bootstrap.min.css">
 <link rel="stylesheet" href="assets/admin.css">
 </head>
 <body data-api="<?= e($BASE) ?>/api"
@@ -42,20 +44,21 @@ $svg = fn(string $k) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 <div class="nebula" style="width:560px;height:560px;background:var(--violeta);top:-240px;right:-160px"></div>
 
 <div class="app">
-    <aside class="side" id="side">
+    <!-- Menú lateral: offcanvas de Bootstrap (fijo en escritorio, deslizable en celular) -->
+    <aside class="side offcanvas-lg offcanvas-start" id="side" tabindex="-1" aria-label="Menú del panel">
         <a class="marca" href="#dashboard"><img src="<?= e($BASE) ?>/public/assets/img/pixela-logo-128.png" alt="Pixela">PIXELA <span class="acento">CMS</span></a>
-        <nav class="nav" id="nav">
-            <a href="#dashboard" data-vista="dashboard"><?= $svg('dashboard') ?>Dashboard</a>
+        <nav class="nav flex-column" id="nav">
+            <a class="nav-link" href="#dashboard" data-vista="dashboard"><?= $svg('dashboard') ?>Dashboard</a>
             <div class="grupo">CONTENIDO</div>
-            <a href="#paginas" data-vista="paginas"><?= $svg('paginas') ?>Páginas y bloques</a>
-            <a href="#menu" data-vista="menu"><?= $svg('menu') ?>Menú</a>
-            <a href="#media" data-vista="media"><?= $svg('media') ?>Imágenes</a>
-            <a href="#mensajes" data-vista="mensajes"><?= $svg('mensajes') ?>Mensajes <span class="contador oculto" id="contMensajes">0</span></a>
+            <a class="nav-link" href="#paginas" data-vista="paginas"><?= $svg('paginas') ?>Páginas y bloques</a>
+            <a class="nav-link" href="#menu" data-vista="menu"><?= $svg('menu') ?>Menú</a>
+            <a class="nav-link" href="#media" data-vista="media"><?= $svg('media') ?>Imágenes</a>
+            <a class="nav-link" href="#mensajes" data-vista="mensajes"><?= $svg('mensajes') ?>Mensajes <span class="contador oculto" id="contMensajes">0</span></a>
             <div class="grupo">SITIO</div>
             <?php if ($esAdmin): ?>
-            <a href="#config" data-vista="config"><?= $svg('config') ?>Colores y logo</a>
+            <a class="nav-link" href="#config" data-vista="config"><?= $svg('config') ?>Colores y logo</a>
             <?php endif; ?>
-            <a href="<?= e($BASE) ?>/" target="_blank" rel="noopener"><?= $svg('sitio') ?>Ver sitio web</a>
+            <a class="nav-link" href="<?= e($BASE) ?>/" target="_blank" rel="noopener"><?= $svg('sitio') ?>Ver sitio web</a>
         </nav>
         <div class="yo">
             <div class="yo-fila">
@@ -66,37 +69,41 @@ $svg = fn(string $k) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentCol
             <button class="btn blanco chico" id="btnSalir" type="button">⏻ Cerrar sesión</button>
         </div>
     </aside>
-    <div class="velo-side" id="veloSide"></div>
 
     <div class="main">
         <div class="topbar">
             <a class="marca" href="#dashboard"><img src="<?= e($BASE) ?>/public/assets/img/pixela-logo-128.png" alt="">PIXELA <span class="acento">CMS</span></a>
-            <button class="icono-btn" id="btnMenu" type="button" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+            <button class="icono-btn" id="btnMenu" type="button" aria-label="Abrir menú" data-bs-toggle="offcanvas" data-bs-target="#side" aria-controls="side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         </div>
         <div class="cinta"><div id="cinta"></div></div>
         <div id="vista"><div class="cargando"><span></span></div></div>
     </div>
 </div>
 
-<!-- Drawer reutilizable (formularios) -->
-<div class="velo" id="velo"></div>
-<aside class="drawer" id="drawer" aria-hidden="true">
+<!-- Drawer reutilizable (formularios): offcanvas de Bootstrap a la derecha -->
+<aside class="drawer offcanvas offcanvas-end" id="drawer" tabindex="-1" aria-labelledby="drawerTitulo">
     <div class="drawer-cab">
-        <div class="fila"><span class="pill lima" id="drawerEtiqueta">EDITAR</span><button class="cerrar" id="drawerCerrar" type="button" aria-label="Cerrar">✕</button></div>
+        <div class="fila"><span class="pill lima" id="drawerEtiqueta">EDITAR</span><button class="cerrar" id="drawerCerrar" type="button" data-bs-dismiss="offcanvas" aria-label="Cerrar">✕</button></div>
         <h2 id="drawerTitulo">Editar</h2>
         <div class="sub" id="drawerSub"></div>
     </div>
     <div class="drawer-cuerpo" id="drawerCuerpo"></div>
     <div class="drawer-pie">
-        <button class="btn blanco" id="drawerCancelar" type="button">Cancelar</button>
+        <button class="btn blanco" id="drawerCancelar" type="button" data-bs-dismiss="offcanvas">Cancelar</button>
         <button class="btn osc" id="drawerGuardar" type="button">GUARDAR →</button>
     </div>
 </aside>
 
-<!-- Selector de imágenes -->
-<div class="modal" id="modal"><div class="modal-caja" id="modalCaja"></div></div>
-<div class="toasts" id="toasts"></div>
+<!-- Selector de imágenes: modal de Bootstrap -->
+<div class="modal fade" id="modal" tabindex="-1" aria-label="Elegir imagen">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content modal-caja" id="modalCaja"></div>
+    </div>
+</div>
+<!-- Avisos: toasts de Bootstrap -->
+<div class="toast-container toasts" id="toasts"></div>
 
+<script src="<?= e($BASE) ?>/public/assets/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="assets/admin.js"></script>
 </body>
 </html>

@@ -1,26 +1,16 @@
-/* PIXELA CMS · Web pública: menú móvil, animaciones al hacer scroll y formulario de contacto */
+/* PIXELA CMS · Web pública (con Bootstrap 5): menú móvil, animaciones al hacer scroll y formulario de contacto */
 'use strict';
 
 const API = document.body.dataset.api;
 
-// ---------- Menú en celular ----------
-const btnMenu = document.getElementById('btnMenu');
+// ---------- Menú en celular (navbar de Bootstrap) ----------
+// Bootstrap abre y cierra el menú (collapse) y los submenús (dropdown).
+// Aquí solo se cierra el menú al elegir una opción, para que no tape la página.
 const nav = document.getElementById('nav');
-if (btnMenu) {
-    btnMenu.addEventListener('click', () => {
-        const abierto = nav.classList.toggle('abierto');
-        btnMenu.setAttribute('aria-expanded', String(abierto));
-    });
-    // en celular, tocar un ítem con submenú lo despliega en vez de navegar
-    document.querySelectorAll('.con-sub > a').forEach(a => a.addEventListener('click', (e) => {
-        if (window.matchMedia('(max-width: 1024px)').matches) {
-            e.preventDefault();
-            a.parentElement.classList.toggle('abierto');
-        }
-    }));
-    nav.querySelectorAll('.sub a, .nav > ul > li:not(.con-sub) > a').forEach(a => a.addEventListener('click', () => {
-        nav.classList.remove('abierto');
-        btnMenu.setAttribute('aria-expanded', 'false');
+if (nav && window.bootstrap) {
+    const menu = bootstrap.Collapse.getOrCreateInstance(nav, { toggle: false });
+    nav.querySelectorAll('.dropdown-item, .nav-link:not(.dropdown-toggle)').forEach(a => a.addEventListener('click', () => {
+        if (window.matchMedia('(max-width: 991.98px)').matches) menu.hide();
     }));
 }
 

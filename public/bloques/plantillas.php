@@ -2,13 +2,13 @@
 // Bloque PLANTILLAS: catálogo con precio y botón directo a WhatsApp
 $items = $c['items'] ?? [];
 ?>
-<div class="contenedor">
+<div class="container contenedor">
     <?= encabezado($c) ?>
-    <div class="rejilla rejilla-4">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-4">
         <?php foreach ($items as $n => $p):
             $foto = img($p['imagen_id'] ?? null, '(max-width: 700px) 90vw, 300px', '', $p['nombre'] ?? '');
             $pedido = $config['whatsapp'] ? whatsapp($config['whatsapp'], 'Hola, me interesa la plantilla "' . ($p['nombre'] ?? '') . '"') : enlace('/contacto'); ?>
-        <article class="plantilla sticker revelar" style="--retraso:<?= $n * 70 ?>ms">
+        <div class="col"><article class="plantilla sticker h-100 revelar" style="--retraso:<?= $n * 70 ?>ms">
             <div class="navegador"><i></i><i></i><i></i></div>
             <div class="plantilla-img" style="background:<?= pastel($n) ?>">
                 <?= $foto ?: '<span class="iniciales">' . e(mb_strtoupper(mb_substr($p['rubro'] ?? $p['nombre'] ?? '?', 0, 1))) . '</span>' ?>
@@ -22,7 +22,7 @@ $items = $c['items'] ?? [];
                     <a class="btn chico" href="<?= e($pedido) ?>" target="_blank" rel="noopener">La quiero</a>
                 </div>
             </div>
-        </article>
+        </article></div>
         <?php endforeach; ?>
     </div>
 </div>

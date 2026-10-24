@@ -2,7 +2,7 @@
 // Bloque GALERÍA: imágenes en mosaico
 $items = array_values(array_filter($c['items'] ?? [], fn($i) => !empty($i['imagen_id'])));
 ?>
-<div class="contenedor">
+<div class="container contenedor">
     <?= encabezado($c) ?>
     <?php if ($items): ?>
     <div class="galeria">

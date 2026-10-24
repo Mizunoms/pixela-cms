@@ -36,12 +36,15 @@ async function api(ruta, { metodo = 'GET', datos, form } = {}) {
     return json.data;
 }
 
+// Avisos con el componente Toast de Bootstrap
 function toast(texto, tipo = 'ok') {
     const t = document.createElement('div');
-    t.className = 'toast' + (tipo === 'error' ? ' error' : '');
-    t.textContent = (tipo === 'error' ? '✖ ' : '✔ ') + texto;
+    t.className = 'toast aviso' + (tipo === 'error' ? ' error' : '');
+    t.setAttribute('role', tipo === 'error' ? 'alert' : 'status');
+    t.innerHTML = `<div class="toast-body">${tipo === 'error' ? '✖' : '✔'} ${esc(texto)}</div>`;
     $('#toasts').appendChild(t);
-    setTimeout(() => { t.classList.add('fuera'); setTimeout(() => t.remove(), 300); }, tipo === 'error' ? 4200 : 2600);
+    t.addEventListener('hidden.bs.toast', () => t.remove());
+    bootstrap.Toast.getOrCreateInstance(t, { delay: tipo === 'error' ? 4200 : 2600 }).show();
 }
 
 const ICONOS = {
@@ -103,40 +106,33 @@ const drawer = {
             try { await alGuardar(); } catch (e) { toast(e.message, 'error'); }
             g.disabled = false;
         };
-        $('#drawer').classList.add('on');
-        $('#velo').classList.add('on');
-        $('#drawer').setAttribute('aria-hidden', 'false');
-        setTimeout(() => $('#drawerCuerpo input, #drawerCuerpo textarea, #drawerCuerpo select')?.focus(), 350);
+        bootstrap.Offcanvas.getOrCreateInstance('#drawer').show();
     },
     cerrar() {
-        $('#drawer').classList.remove('on');
-        $('#velo').classList.remove('on');
-        $('#drawer').setAttribute('aria-hidden', 'true');
+        bootstrap.Offcanvas.getOrCreateInstance('#drawer').hide();
     },
 };
-$('#drawerCerrar').onclick = $('#drawerCancelar').onclick = $('#velo').onclick = () => drawer.cerrar();
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { drawer.cerrar(); cerrarModal(); } });
+// al abrir, el cursor va al primer campo del formulario
+$('#drawer').addEventListener('shown.bs.offcanvas', () => $('#drawerCuerpo input, #drawerCuerpo textarea, #drawerCuerpo select')?.focus());
 
 // ---------- Selector de imágenes (modal) ----------
-function cerrarModal() { $('#modal').classList.remove('on'); }
-$('#modal').addEventListener('click', e => { if (e.target.id === 'modal') cerrarModal(); });
+function cerrarModal() { bootstrap.Modal.getOrCreateInstance('#modal').hide(); }
 
 async function elegirImagen(alElegir) {
     const caja = $('#modalCaja');
     caja.innerHTML = '<div class="cargando"><span></span></div>';
-    $('#modal').classList.add('on');
+    bootstrap.Modal.getOrCreateInstance('#modal').show();
     const pintar = async () => {
         const medios = await api('/admin/media');
         caja.innerHTML = `
             <div class="fila"><h3>Elegir imagen</h3>
               <div class="acciones"><label class="btn chico">${ico('subir')} Subir nueva<input type="file" accept="image/*" hidden id="subirModal"></label>
               <button class="btn blanco chico" type="button" id="quitarImg">Sin imagen</button>
-              <button class="cerrar" type="button" id="cerrarModal">✕</button></div></div>
+              <button class="cerrar" type="button" data-bs-dismiss="modal" aria-label="Cerrar">✕</button></div></div>
             ${medios.length ? `<div class="galeria elegir">${medios.map(m => `
                 <div class="foto" data-id="${m.id}"><div class="img"><img src="${esc(m.variantes[0]?.url)}" alt="${esc(m.alt)}" loading="lazy"></div>
                 <div class="datos"><b>#${m.id} · ${esc(m.nombre_original)}</b><span class="mono">${m.ancho_original}×${m.alto_original}px</span></div></div>`).join('')}</div>`
             : '<div class="vacio" style="color:#555;border-color:#bbb"><b style="color:#111">Aún no hay imágenes</b>Sube la primera con el botón de arriba.</div>'}`;
-        $('#cerrarModal').onclick = cerrarModal;
         $('#quitarImg').onclick = () => { alElegir(null); cerrarModal(); };
         $('#subirModal').onchange = async (e) => {
             if (!e.target.files[0]) return;
@@ -229,15 +225,15 @@ const editor = {
             const ayuda = c.ayuda ? `<div class="ayuda">${esc(c.ayuda)}</div>` : '';
             switch (c.tipo) {
                 case 'area':
-                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><textarea class="campo" ${data}>${esc(v)}</textarea>${ayuda}</div>`;
+                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><textarea class="form-control campo" ${data}>${esc(v)}</textarea>${ayuda}</div>`;
                 case 'numero':
-                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><input class="campo" type="number" min="0" step="1" value="${esc(v ?? 0)}" ${data}></div>`;
+                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><input class="form-control campo" type="number" min="0" step="1" value="${esc(v ?? 0)}" ${data}></div>`;
                 case 'booleano':
                     return `<label class="switch"><b>${esc(c.etiqueta)}</b><input type="checkbox" ${v ? 'checked' : ''} ${data}><span class="tog"></span></label>`;
                 case 'lineas':
-                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><textarea class="campo" ${data}>${esc((Array.isArray(v) ? v : []).join('\n'))}</textarea></div>`;
+                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><textarea class="form-control campo" ${data}>${esc((Array.isArray(v) ? v : []).join('\n'))}</textarea></div>`;
                 case 'select':
-                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><select class="campo" ${data}>${Object.entries(c.opciones).map(([k, t]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>`;
+                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><select class="form-select campo" ${data}>${Object.entries(c.opciones).map(([k, t]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></div>`;
                 case 'imagen': {
                     const url = v ? this.cacheImg[v] : '';
                     return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><div class="selector-img">
@@ -257,7 +253,7 @@ const editor = {
                 default: {
                     const esEnlace = /url$/.test(c.nombre);
                     const ayudaEnlace = esEnlace && !c.ayuda ? '<div class="ayuda">Elige una página de la lista o pega un enlace (https://...)</div>' : ayuda;
-                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><input class="campo" type="text" value="${esc(v)}" ${esEnlace ? 'list="enlacesSitio" placeholder="Ej. /contacto"' : ''} ${data}>${ayudaEnlace}</div>`;
+                    return `<div class="fila-campo"><label class="lbl">${esc(c.etiqueta)}</label><input class="form-control campo" type="text" value="${esc(v)}" ${esEnlace ? 'list="enlacesSitio" placeholder="Ej. /contacto"' : ''} ${data}>${ayudaEnlace}</div>`;
                 }
             }
         }).join('');
@@ -347,7 +343,7 @@ function error(e) {
 async function vistaDashboard() {
     const [r, paginas, config] = await Promise.all([api('/admin/resumen'), api('/admin/paginas'), api('/config')]);
     actualizarContador(r.mensajes_sin_leer);
-    const k = (color, icono, titulo, n, sub) => `<div class="kpi sticker" style="background:var(--${color})"><span class="ic">${ico(icono)}</span><div class="t">${titulo}</div><div class="n sube" data-n="${n}">0</div><div class="s">${sub}</div></div>`;
+    const k = (color, icono, titulo, n, sub) => `<div class="col"><div class="kpi sticker h-100" style="background:var(--${color})"><span class="ic">${ico(icono)}</span><div class="t">${titulo}</div><div class="n sube" data-n="${n}">0</div><div class="s">${sub}</div></div></div>`;
     const hora = new Date().getHours();
     const saludo = hora < 12 ? 'Buenos días' : hora < 19 ? 'Buenas tardes' : 'Buenas noches';
 
@@ -355,19 +351,19 @@ async function vistaDashboard() {
         `<a class="btn blanco" href="${SITIO}" target="_blank" rel="noopener">${ico('externo')} Ver sitio</a><button class="btn" type="button" id="nuevaPag">${ico('mas')} Nueva página</button>`) + `
         <div class="contenido">
             ${guiaRapida(paginas)}
-            <div class="kpis">
+            <div class="kpis row row-cols-2 row-cols-xl-4 g-3">
                 ${k('lila', 'paginas', 'Páginas', r.paginas, `${r.paginas_publicadas} publicadas`)}
                 ${k('cielo', 'bloques', 'Bloques', r.bloques, `${r.bloques_visibles} visibles`)}
                 ${k('lima', 'menu', 'Menú', r.menu, `${r.submenus} submenús`)}
                 ${k('rosa', 'correo', 'Mensajes', r.mensajes, `${r.mensajes_sin_leer} sin leer`)}
             </div>
-            <div class="rejilla-2">
-                <div class="caja"><h2 class="caja-titulo">01 // Páginas <span class="pill">${paginas.length} REG.</span></h2>
-                    <div class="tabla-scroll">${tablaPaginas(paginas, true)}</div></div>
-                <div class="caja violeta"><h2 class="caja-titulo">02 // Colores del sitio <span class="vivo">EN VIVO</span></h2>
+            <div class="row g-4">
+                <div class="col-12 col-xl-7"><div class="caja h-100"><h2 class="caja-titulo">01 // Páginas <span class="pill">${paginas.length} REG.</span></h2>
+                    <div class="tabla-scroll table-responsive">${tablaPaginas(paginas, true)}</div></div></div>
+                <div class="col-12 col-xl-5"><div class="caja violeta h-100"><h2 class="caja-titulo">02 // Colores del sitio <span class="vivo">EN VIVO</span></h2>
                     ${muestrasColores(config.colores)}
                     <div style="margin-top:14px">${previaSitio(config)}</div>
-                    ${ES_ADMIN ? '<a class="btn blanco chico" href="#config" style="margin-top:14px">Cambiar colores y logo →</a>' : ''}</div>
+                    ${ES_ADMIN ? '<a class="btn blanco chico" href="#config" style="margin-top:14px">Cambiar colores y logo →</a>' : ''}</div></div>
             </div>
         </div>`;
     $$('.sube', vista).forEach(contar);
@@ -385,8 +381,8 @@ function guiaRapida(paginas) {
         ['externo', 'Mira cómo quedó', 'Abre tu web en otra pestaña y revisa los cambios.', SITIO, 'target="_blank" rel="noopener"'],
     ].filter(Boolean);
     return `<div class="caja guia-caja"><h2 class="caja-titulo">¿Por dónde empiezo? <span class="pill lima">GUÍA RÁPIDA</span></h2>
-        <div class="guia">${pasos.map(([ic, t, d, href, extra], i) => `<a class="guia-paso" href="${esc(href)}" ${extra}>
-            <span class="guia-num">${i + 1}</span><span class="guia-ic">${ico(ic)}</span><b>${t}</b><span>${d}</span></a>`).join('')}</div></div>`;
+        <div class="guia row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-3">${pasos.map(([ic, t, d, href, extra], i) => `<div class="col"><a class="guia-paso h-100" href="${esc(href)}" ${extra}>
+            <span class="guia-num">${i + 1}</span><span class="guia-ic">${ico(ic)}</span><b>${t}</b><span>${d}</span></a></div>`).join('')}</div></div>`;
 }
 
 function muestrasColores(c) {
@@ -408,7 +404,7 @@ function previaSitio(config, colores = config.colores) {
 // ---------- Páginas ----------
 function tablaPaginas(paginas, compacta = false) {
     if (!paginas.length) return '<div class="vacio"><b>Sin páginas</b>Crea la primera con “Nueva página”.</div>';
-    return `<table><thead><tr><th>Título</th><th>Ruta</th><th>Bloques</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead><tbody>
+    return `<table class="table align-middle mb-0"><thead><tr><th>Título</th><th>Ruta</th><th>Bloques</th><th>Estado</th><th style="text-align:right">Acciones</th></tr></thead><tbody>
         ${paginas.map(p => `<tr data-id="${p.id}">
             <td><b>${esc(p.titulo)}</b></td>
             <td><code>${p.es_inicio ? '/' : '/' + esc(p.slug)}</code></td>
@@ -440,7 +436,7 @@ async function vistaPaginas() {
     vista.innerHTML = cabecera('Páginas', 'Cada página de tu web está hecha de bloques (secciones). Pulsa “Contenido” para editar una.',
         `<button class="btn" type="button" id="nuevaPag">${ico('mas')} Nueva página</button>`) + `
         <div class="contenido"><div class="caja"><h2 class="caja-titulo">Todas las páginas <span class="pill">${cachePaginas.length} REG.</span></h2>
-        <div class="tabla-scroll">${tablaPaginas(cachePaginas)}</div></div></div>`;
+        <div class="tabla-scroll table-responsive">${tablaPaginas(cachePaginas)}</div></div></div>`;
     $('#nuevaPag').onclick = () => formPagina();
     enlazarTablaPaginas();
 }
@@ -452,9 +448,9 @@ function formPagina(p = null) {
         titulo: nueva ? 'Nueva página' : 'Editar página',
         sub: nueva ? 'Luego le agregas bloques' : `Ruta actual: /${p.es_inicio ? '' : p.slug}`,
         html: `
-            <div class="fila-campo"><label class="lbl" for="pTitulo">Título</label><input class="campo" id="pTitulo" value="${esc(p?.titulo)}" placeholder="Ej. Portafolio"></div>
-            <div class="fila-campo"><label class="lbl" for="pSlug">Dirección en la web</label><input class="campo" id="pSlug" value="${esc(p?.slug)}" placeholder="se genera del título"><div class="ayuda">Se crea sola a partir del título. Ej.: “mis-trabajos” queda como tuweb.com/mis-trabajos</div></div>
-            <div class="fila-campo"><label class="lbl" for="pMeta">Descripción para Google</label><textarea class="campo" id="pMeta" maxlength="255">${esc(p?.meta_descripcion)}</textarea></div>
+            <div class="fila-campo"><label class="lbl" for="pTitulo">Título</label><input class="form-control campo" id="pTitulo" value="${esc(p?.titulo)}" placeholder="Ej. Portafolio"></div>
+            <div class="fila-campo"><label class="lbl" for="pSlug">Dirección en la web</label><input class="form-control campo" id="pSlug" value="${esc(p?.slug)}" placeholder="se genera del título"><div class="ayuda">Se crea sola a partir del título. Ej.: “mis-trabajos” queda como tuweb.com/mis-trabajos</div></div>
+            <div class="fila-campo"><label class="lbl" for="pMeta">Descripción para Google</label><textarea class="form-control campo" id="pMeta" maxlength="255">${esc(p?.meta_descripcion)}</textarea></div>
             <label class="switch"><div><b>Publicada</b><div class="ayuda">si la apagas, no se ve en la web</div></div><input type="checkbox" id="pPub" ${!p || p.publicada ? 'checked' : ''}><span class="tog"></span></label>
             <label class="switch"><div><b>Página de inicio</b><div class="ayuda">se muestra en la portada del sitio</div></div><input type="checkbox" id="pInicio" ${p?.es_inicio ? 'checked disabled' : ''}><span class="tog"></span></label>`,
         textoGuardar: nueva ? 'CREAR PÁGINA →' : 'GUARDAR →',
@@ -660,13 +656,13 @@ function formMenu(it, arbol) {
         etiqueta: nuevo ? 'NUEVO ÍTEM' : 'EDITAR ÍTEM',
         titulo: nuevo ? 'Nuevo ítem' : 'Editar ítem', sub: 'Elige a dónde lleva este enlace',
         html: `
-            <div class="fila-campo"><label class="lbl" for="mEtiqueta">Texto del enlace</label><input class="campo" id="mEtiqueta" value="${esc(it?.etiqueta)}" maxlength="60" placeholder="Ej. Portafolio"></div>
+            <div class="fila-campo"><label class="lbl" for="mEtiqueta">Texto del enlace</label><input class="form-control campo" id="mEtiqueta" value="${esc(it?.etiqueta)}" maxlength="60" placeholder="Ej. Portafolio"></div>
             <div class="tabs"><button type="button" data-d="pagina" class="${conPagina ? 'on' : ''}">Página del sitio</button><button type="button" data-d="url" class="${conPagina ? '' : 'on'}">Enlace / ancla</button></div>
             <div class="fila-campo ${conPagina ? '' : 'oculto'}" id="mPaginaFila"><label class="lbl" for="mPagina">Página</label>
-                <select class="campo" id="mPagina">${cachePaginas.map(p => `<option value="${p.id}" ${it?.pagina_id === p.id ? 'selected' : ''}>${esc(p.titulo)} (/${p.es_inicio ? '' : esc(p.slug)})</option>`).join('')}</select></div>
-            <div class="fila-campo ${conPagina ? 'oculto' : ''}" id="mUrlFila"><label class="lbl" for="mUrl">Enlace</label><input class="campo" id="mUrl" value="${esc(it?.url_externa)}" placeholder="https://instagram.com/... · /contacto · #planes"></div>
+                <select class="form-select campo" id="mPagina">${cachePaginas.map(p => `<option value="${p.id}" ${it?.pagina_id === p.id ? 'selected' : ''}>${esc(p.titulo)} (/${p.es_inicio ? '' : esc(p.slug)})</option>`).join('')}</select></div>
+            <div class="fila-campo ${conPagina ? 'oculto' : ''}" id="mUrlFila"><label class="lbl" for="mUrl">Enlace</label><input class="form-control campo" id="mUrl" value="${esc(it?.url_externa)}" placeholder="https://instagram.com/... · /contacto · #planes"></div>
             <div class="fila-campo"><label class="lbl" for="mPadre">Ubicación</label>
-                <select class="campo" id="mPadre" ${it?.hijos?.length ? 'disabled' : ''}><option value="">Menú principal</option>${padres.map(a => `<option value="${a.id}" ${it?.parent_id === a.id ? 'selected' : ''}>Submenú de “${esc(a.etiqueta)}”</option>`).join('')}</select>
+                <select class="form-select campo" id="mPadre" ${it?.hijos?.length ? 'disabled' : ''}><option value="">Menú principal</option>${padres.map(a => `<option value="${a.id}" ${it?.parent_id === a.id ? 'selected' : ''}>Submenú de “${esc(a.etiqueta)}”</option>`).join('')}</select>
                 ${it?.hijos?.length ? '<div class="ayuda">Tiene submenús, por eso queda en el menú principal.</div>' : ''}</div>
             <label class="switch"><b>Visible en la web</b><input type="checkbox" id="mVisible" ${!it || it.visible ? 'checked' : ''}><span class="tog"></span></label>`,
         textoGuardar: nuevo ? 'CREAR →' : 'GUARDAR →',
@@ -701,7 +697,7 @@ async function vistaMedia() {
                     <div class="img"><img src="${esc(m.variantes[0]?.url)}" srcset="${esc(m.srcset)}" sizes="220px" alt="${esc(m.alt)}" loading="lazy"></div>
                     <div class="datos"><b>#${m.id} · ${esc(m.nombre_original)}</b>
                         <span class="mono">${m.ancho_original}×${m.alto_original}px · ${m.variantes.map(v => v.ancho).join(' / ')}</span>
-                        <input class="campo" data-alt value="${esc(m.alt)}" placeholder="Texto alternativo" maxlength="255">
+                        <input class="form-control campo" data-alt value="${esc(m.alt)}" placeholder="Texto alternativo" maxlength="255">
                         <div class="btns">${btnIco('copiar', 'data-copiar', 'Copiar URL')}<a class="icono-btn" href="${esc(m.url)}" target="_blank" rel="noopener" title="Ver">${ico('ver')}</a>
                         <button class="icono-btn rojo" type="button" data-borrar title="Eliminar">${ico('borrar')}</button></div></div>
                 </div>`).join('')}</div>` : '<div class="vacio"><b>Aún no hay imágenes</b>Sube la primera en la zona de arriba.</div>'}
@@ -800,34 +796,34 @@ async function vistaConfig() {
     vista.innerHTML = cabecera('Colores y logo', 'Cambia los colores, el logo y los datos de contacto de toda tu web.',
         `<a class="btn blanco" href="${SITIO}" target="_blank" rel="noopener">${ico('externo')} Ver sitio</a><button class="btn" type="button" id="guardarConfig">GUARDAR CAMBIOS →</button>`) + `
         <div class="contenido">
-            <div class="rejilla-2">
-                <div class="caja"><h2 class="caja-titulo">01 // Paleta de colores <button class="btn blanco chico" type="button" id="restaurar">Restaurar Pixela</button></h2>
+            <div class="row g-4">
+                <div class="col-12 col-xl-7"><div class="caja h-100"><h2 class="caja-titulo">01 // Paleta de colores <button class="btn blanco chico" type="button" id="restaurar">Restaurar Pixela</button></h2>
                     <div class="colores-form">${Object.entries(nombres).map(([k, t]) => `
                         <div class="color-campo"><span>${t}<small>${USOS_COLOR[k]}</small></span><input type="color" data-color="${k}" value="${esc(colores[k])}" aria-label="${t}">
                         <input type="text" data-hex="${k}" value="${esc(colores[k])}" maxlength="7" aria-label="${t} en HEX"></div>`).join('')}</div>
                     <p class="ayuda-color">💡 Mira la vista previa mientras eliges. El <b>fondo</b> y el <b>texto</b> deben contrastar (uno claro y otro oscuro). Si no te gusta, pulsa “Restaurar Pixela”.</p>
-                </div>
-                <div class="caja violeta"><h2 class="caja-titulo">02 // Vista previa <span class="vivo">EN VIVO</span></h2><div id="previaCont"></div></div>
+                </div></div>
+                <div class="col-12 col-xl-5"><div class="caja violeta h-100"><h2 class="caja-titulo">02 // Vista previa <span class="vivo">EN VIVO</span></h2><div id="previaCont"></div></div></div>
             </div>
-            <div class="rejilla-2">
-                <div class="caja"><h2 class="caja-titulo">03 // Identidad</h2>
+            <div class="row g-4">
+                <div class="col-12 col-xl-6"><div class="caja h-100"><h2 class="caja-titulo">03 // Identidad</h2>
                     <div class="dos-col">
-                        <div class="fila-campo"><label class="lbl" for="cNombre">Nombre del sitio</label><input class="campo" id="cNombre" value="${esc(c.nombre_sitio)}" maxlength="100"></div>
-                        <div class="fila-campo"><label class="lbl" for="cEslogan">Eslogan</label><input class="campo" id="cEslogan" value="${esc(c.eslogan)}" maxlength="200"></div>
+                        <div class="fila-campo"><label class="lbl" for="cNombre">Nombre del sitio</label><input class="form-control campo" id="cNombre" value="${esc(c.nombre_sitio)}" maxlength="100"></div>
+                        <div class="fila-campo"><label class="lbl" for="cEslogan">Eslogan</label><input class="form-control campo" id="cEslogan" value="${esc(c.eslogan)}" maxlength="200"></div>
                     </div>
                     <div class="dos-col">
                         <div class="fila-campo"><label class="lbl">Logo</label>${selImg('logo', logo)}</div>
                         <div class="fila-campo"><label class="lbl">Ícono de la pestaña (favicon)</label>${selImg('favicon', favicon)}</div>
                     </div>
-                </div>
-                <div class="caja"><h2 class="caja-titulo">04 // Contacto y redes</h2>
+                </div></div>
+                <div class="col-12 col-xl-6"><div class="caja h-100"><h2 class="caja-titulo">04 // Contacto y redes</h2>
                     <div class="dos-col">
-                        <div class="fila-campo"><label class="lbl" for="cWa">WhatsApp</label><input class="campo" id="cWa" value="${esc(c.whatsapp)}" placeholder="51987654321"></div>
-                        <div class="fila-campo"><label class="lbl" for="cEmail">Email</label><input class="campo" id="cEmail" value="${esc(c.email_contacto)}"></div>
+                        <div class="fila-campo"><label class="lbl" for="cWa">WhatsApp</label><input class="form-control campo" id="cWa" value="${esc(c.whatsapp)}" placeholder="51987654321"></div>
+                        <div class="fila-campo"><label class="lbl" for="cEmail">Email</label><input class="form-control campo" id="cEmail" value="${esc(c.email_contacto)}"></div>
                     </div>
-                    <div class="fila-campo"><label class="lbl" for="cDir">Dirección (también se usa para el mapa)</label><input class="campo" id="cDir" value="${esc(c.direccion)}"></div>
-                    <div class="dos-col">${redes.map(r => `<div class="fila-campo"><label class="lbl" for="red-${r}">${r}</label><input class="campo" id="red-${r}" value="${esc(c.redes_sociales?.[r] || '')}" placeholder="https://"></div>`).join('')}</div>
-                </div>
+                    <div class="fila-campo"><label class="lbl" for="cDir">Dirección (también se usa para el mapa)</label><input class="form-control campo" id="cDir" value="${esc(c.direccion)}"></div>
+                    <div class="dos-col">${redes.map(r => `<div class="fila-campo"><label class="lbl" for="red-${r}">${r}</label><input class="form-control campo" id="red-${r}" value="${esc(c.redes_sociales?.[r] || '')}" placeholder="https://"></div>`).join('')}</div>
+                </div></div>
             </div>
         </div>`;
 
@@ -891,9 +887,10 @@ async function router() {
 window.addEventListener('hashchange', router);
 
 // ---------- Menú lateral en celular ----------
-function cerrarMenuMovil() { $('#side').classList.remove('abierto'); $('#veloSide').classList.remove('on'); }
-$('#btnMenu').onclick = () => { $('#side').classList.add('abierto'); $('#veloSide').classList.add('on'); };
-$('#veloSide').onclick = cerrarMenuMovil;
+// el menú lateral es un offcanvas de Bootstrap: el botón ☰ lo abre (data-bs-toggle) y aquí se cierra al navegar
+function cerrarMenuMovil() {
+    if (window.matchMedia('(max-width: 991.98px)').matches) bootstrap.Offcanvas.getInstance('#side')?.hide();
+}
 
 // ---------- Sesión: cuenta regresiva del JWT y cierre ----------
 const EXP = +CUERPO.exp * 1000;
